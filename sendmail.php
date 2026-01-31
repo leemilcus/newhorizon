@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     // Email settings
-    $to = "info@newhorizonlandscaping.co.za"; // Change to your email
+    $to = "info@shailendralm.co.za"; // Change to your email
     $subject = "New Contact Form Submission - New Horizon Landscaping";
     
     // Email content
