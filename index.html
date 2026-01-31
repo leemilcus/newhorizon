@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Horizon Landscaping Solutions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Combined CSS from both files - I've consolidated and organized it */
+        :root {
+            --primary-green: #1B5E20;
+            --dark-green: #0d3b1e;
+            --medium-green: #2E7D32;
+            --light-green: #E8F5E9;
+            --accent-orange: #FF9800;
+            --dark-orange: #EF6C00;
+            --light-blue: #4FC3F7;
+            --dark-blue: #0288D1;
+            --bg-light: #f8f9fa;
+            --bg-medium: #f0f3f5;
+            --card-light: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-medium: #4a4a4a;
+            --border-color: #d1d1d1;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .section-padding {
+            padding: 100px 0;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* Floating Admin Button */
+        .floating-admin-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            background-color: var(--primary-green);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(27, 94, 32, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            border: none;
+            font-size: 24px;
+        }
+        
+        .floating-admin-btn:hover {
+            background-color: var(--dark-green);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(27, 94, 32, 0.4);
+        }
+        
+        .floating-admin-btn.admin-active {
+            background-color: var(--accent-orange);
+        }
+        
+        .floating-admin-btn.admin-active:hover {
+            background-color: var(--dark-orange);
+        }
+        
+        /* Mode Toggle - Keep it at top but smaller */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: none; /* Hide by default, will show when needed */
+        }
+        
+        .mode-toggle-btn {
+            padding: 6px 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        
+        .mode-toggle-btn.active {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        
+        .mode-toggle-btn:hover:not(.active) {
+            background: var(--light-green);
+        }
+        
+        /* Admin/Main visibility */
+        .admin-mode #main-website {
+            display: none;
+        }
+        
+        .main-mode #admin-portal {
+            display: none;
+        }
+        
+        /* Show mode toggle when in admin mode */
+        .admin-mode .mode-toggle {
+            display: flex;
+        }
+        
+        /* Main website container */
+        #main-website {
+            position: relative;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Admin portal container */
+        #admin-portal {
+            min-height: 100vh;
+            background: var(--bg-light);
+            padding-top: 80px; /* Space for mode toggle */
+        }
+        
+        /* Common button styles */
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-orange);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background-color: var(--dark-orange); 
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(239, 108, 0, 0.2);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--accent-orange);
+            border: 2px solid var(--accent-orange);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--accent-orange);
+            color: white;
+        }
+        
+        .btn-green {
+            background-color: var(--primary-green);
+        }
+        
+        .btn-green:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .btn-red {
+            background-color: #e53935;
+        }
+        
+        .btn-red:hover {
+            background-color: #c62828;
+        }
+        
+        .btn-full {
+            width: 100%;
+            padding: 15px;
+        }
+        
+        /* ================= MAIN WEBSITE STYLES ================= */
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo-img {
+            height: 90px;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+        }
+        
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        .main-nav li {
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .main-nav a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 15px;
+            transition: var(--transition);
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .main-nav a:hover {
+            color: var(--accent-orange);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+        
+        /* Hero Slider - FIXED FOR MOBILE */
+        .hero-slider {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            margin-top: 80px;
+            width: 100%;
+        }
+        
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+        }
+        
+        .hero-content {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 60px;
+            border-radius: 8px;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin: 0 20px;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .hero-content .highlight {
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+        
+        /* FIXED SLIDER CONTROLS - Won't cover buttons on mobile */
+        .slider-controls {
+            position: absolute;
+            bottom: 120px; /* Moved higher to avoid covering buttons */
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .slider-dots {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .slider-dot.active {
+            background-color: var(--accent-orange);
+            transform: scale(1.2);
+        }
+        
+        /* Services Section - FIXED */
+        .services {
+            background-color: var(--bg-medium);
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 4px;
+            background-color: var(--accent-orange);
+            bottom: -15px;
+            left: 0;
+        }
+        
+        .text-center .section-title:after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-subtitle {
+            color: var(--text-medium);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 60px;
+            font-weight: 300;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .service-card {
+            background-color: var(--card-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            position: relative;
+            z-index: 1;
+            height: 100%;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-green);
+        }
+        
+        .service-icon {
+            height: 80px;
+            background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+        }
+        
+        .service-content {
+            padding: 30px;
+        }
+        
+        .service-content h3 {
+            color: var(--primary-green);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .service-content p {
+            color: var(--text-medium);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .service-content ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .service-content li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+            color: var(--text-medium);
+        }
+        
+        .service-content li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-orange);
+            font-weight: bold;
+        }
+        
+        /* Gallery Section */
+        .gallery {
+            background-color: var(--bg-light);
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .gallery-filter {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        
+        .filter-btn {
+            padding: 8px 20px;
+            background-color: var(--card-light);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+        
+        .website-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .website-gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            height: 250px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .website-gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .website-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .website-gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        
+        .website-gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+        
+        /* About Section - FIXED */
+        .about {
+            background-color: var(--bg-light);
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            width: 100%;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-image {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+            max-width: 50%;
+        }
+        
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: var(--transition);
+        }
+        
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Contact Section */
+        .contact-section {
+            background-color: var(--bg-medium);
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+        
+        .contact-info {
+            background-color: var(--card-light);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+        
+        .contact-info h3 {
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent-orange);
+        }
+        
+        .contact-details {
+            margin-bottom: 40px;
+        }
+        
+        .contact-detail-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+        
+        .contact-detail-icon {
+            background-color: var(--light-green);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-green);
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .business-hours {
+            background-color: var(--light-green);
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-orange);
+        }
+        
+        /* Contact Form */
+        .contact-form-container {
+            background-color: var(--card-light);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+        
+        .contact-form-container h3 {
+            color: var(--primary-green);
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent-orange);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--bg-light);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Success/Error Message */
+        .form-success {
+            background-color: var(--light-green);
+            color: var(--primary-green);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .form-success.active {
+            display: block;
+        }
+        
+        .form-error {
+            background-color: #ffebee;
+            color: #e53935;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .form-error.active {
+            display: block;
+        }
+        
+        /* Loading indicator for form submission */
+        .form-loading {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: var(--text-medium);
+        }
+        
+        .form-loading.active {
+            display: block;
+        }
+        
+        /* Footer - FIXED */
+        footer {
+            background-color: var(--dark-green);
+            color: white;
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            position: relative;
+            left: 0;
+            right: 0;
+        }
+        
+        .footer-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-logo-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .footer-logo {
+            margin-bottom: 20px;
+        }
+        
+        .footer-logo .logo-img {
+            height: 70px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .footer-contact p {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .footer-contact i {
+            margin-right: 10px;
+            color: var(--accent-orange);
+            width: 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links-column {
+            min-width: 150px;
+        }
+        
+        .footer-links-column h4 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-orange);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .footer-links-column ul {
+            list-style: none;
+        }
+        
+        .footer-links-column li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links-column a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .footer-links-column a:hover {
+            color: var(--accent-orange);
+            padding-left: 5px;
+        }
+        
+        .footer-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .footer-copyright {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            padding-top: 20px;
+        }
+        
+        .footer-copyright .company-name {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .footer-copyright .crafted-by {
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        
+        /* Lightbox Modal */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .lightbox-modal.active {
+            display: flex;
+        }
+        
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        
+        .lightbox-content img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 1110;
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            transform: translateY(-50%);
+        }
+        
+        .lightbox-nav-btn {
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ================= ADMIN PORTAL STYLES ================= */
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            width: 100%;
+        }
+        
+        .admin-header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .admin-header p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .back-to-site {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: 500;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .back-to-site:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-to-site i {
+            margin-right: 8px;
+        }
+        
+        .admin-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            width: 100%;
+        }
+        
+        .admin-card {
+            background-color: var(--card-light);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .admin-card h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-orange);
+        }
+        
+        /* File Upload Styles */
+        .file-upload-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            cursor: pointer;
+            background-color: var(--bg-light);
+            width: 100%;
+        }
+        
+        .file-upload-container:hover {
+            border-color: var(--primary-green);
+            background-color: var(--light-green);
+        }
+        
+        .file-upload-container.drag-over {
+            border-color: var(--accent-orange);
+            background-color: rgba(255, 152, 0, 0.1);
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+        
+        .file-upload-text h4 {
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+        
+        .file-upload-text p {
+            color: var(--text-medium);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-green);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        
+        .file-upload-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .selected-file {
+            display: flex;
+            align-items: center;
+            background-color: var(--light-green);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            width: 100%;
+        }
+        
+        .selected-file.active {
+            display: flex;
+        }
+        
+        .file-icon {
+            margin-right: 15px;
+            color: var(--primary-green);
+            font-size: 24px;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+            border: 1px solid var(--border-color);
+        }
+        
+        .image-preview.active {
+            display: block;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .gallery-management {
+            margin-top: 40px;
+            width: 100%;
+        }
+        
+        .gallery-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .gallery-item {
+            background-color: var(--card-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            width: 100%;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .gallery-item-info {
+            padding: 15px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: var(--light-green);
+            color: var(--primary-green);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            width: 100%;
+        }
+        
+        .message.success {
+            background-color: #e8f5e9;
+            color: var(--primary-green);
+            border: 1px solid #c8e6c9;
+        }
+        
+        .message.error {
+            background-color: #ffebee;
+            color: #e53935;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .message.info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .login-form {
+            background-color: var(--card-light);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 100%;
+        }
+        
+        .password-hint {
+            font-size: 12px;
+            color: var(--text-medium);
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .storage-info {
+            background-color: var(--light-green);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-medium);
+            width: 100%;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .brand-name {
+            color: rgb(255, 145, 2);
+            transition: color 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .brand-name:hover {
+            color: rgb(5, 190, 20);
+        }
+        
+        /* ================= RESPONSIVE DESIGN ================= */
+        
+        @media (max-width: 992px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+            
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .about-image {
+                max-width: 100%;
+                margin-top: 40px;
+            }
+            
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            /* Center content on mobile */
+            .container {
+                padding: 0 15px;
+            }
+            
+            .hero-content {
+                padding: 40px 20px;
+                margin: 0 15px;
+            }
+            
+            .service-content, .admin-card, .contact-info, .contact-form-container {
+                padding: 25px;
+            }
+            
+            .admin-header {
+                padding: 30px 20px;
+            }
+            
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-nav {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                background-color: white;
+                transition: var(--transition);
+                border-top: 1px solid var(--border-color);
+                padding: 30px;
+                height: calc(100vh - 80px);
+                overflow-y: auto;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+            
+            .main-nav.active {
+                left: 0;
+            }
+            
+            .main-nav ul {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .main-nav li {
+                margin: 0 0 20px 0;
+                width: 100%;
+            }
+            
+            .main-nav a {
+                font-size: 16px;
+                padding: 10px 0;
+                display: block;
+                width: 100%;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-slider {
+                height: 80vh;
+            }
+            
+            /* FIXED HERO CONTENT FOR MOBILE */
+            .hero-content {
+                padding: 30px 15px;
+                margin: 0 10px;
+                position: relative;
+                z-index: 5;
+                margin-bottom: 60px; /* Add space for slider dots */
+            }
+            
+            .hero-content h1 {
+                font-size: 2.2rem;
+                line-height: 1.2;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
+                margin-bottom: 25px;
+            }
+            
+            /* FIXED SLIDER CONTROLS FOR MOBILE */
+            .slider-controls {
+                bottom: 100px; /* Higher on mobile to avoid button overlap */
+            }
+            
+            .hero-content .btn {
+                margin-bottom: 10px;
+                display: block;
+                width: 100%;
+            }
+            
+            .hero-content .btn + .btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .section-subtitle {
+                font-size: 1rem;
+                padding: 0 10px;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .website-gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .about-content {
+                gap: 30px;
+            }
+            
+            .about-text, .about-image {
+                width: 100%;
+            }
+            
+            .gallery-filter {
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                padding: 6px 15px;
+                font-size: 14px;
+            }
+            
+            /* Floating button adjustments */
+            .floating-admin-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            /* Center admin content on mobile */
+            .admin-container {
+                padding: 10px;
+            }
+            
+            .admin-card {
+                padding: 20px;
+            }
+            
+            .file-upload-container {
+                padding: 30px 15px;
+            }
+            
+            .gallery-list {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            /* Footer adjustments for mobile */
+            .footer-main {
+                flex-direction: column;
+                gap: 30px;
+                text-align: center;
+            }
+            
+            .footer-links {
+                width: 100%;
+                justify-content: center;
+                gap: 30px;
+            }
+            
+            .footer-logo-section {
+                min-width: 100%;
+            }
+            
+            .footer-contact p {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-slider {
+                height: 70vh;
+            }
+            
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-content {
+                padding: 25px 15px;
+                margin-bottom: 80px; /* More space for slider dots */
+            }
+            
+            /* FIXED SLIDER DOTS POSITION ON SMALL SCREENS */
+            .slider-controls {
+                bottom: 80px;
+            }
+            
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+                margin: 5px 0;
+            }
+            
+            .section-padding {
+                padding: 70px 0;
+            }
+            
+            .logo-img {
+                height: 70px;
+                max-width: 200px;
+            }
+            
+            .website-gallery-item {
+                height: 200px;
+            }
+            
+            .contact-info, .contact-form-container {
+                padding: 20px;
+            }
+            
+            .contact-detail-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .contact-detail-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            /* Even smaller floating button for very small screens */
+            .floating-admin-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .mode-toggle {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .footer-links-column {
+                min-width: 100%;
+            }
+            
+            .footer-copyright {
+                font-size: 0.8rem;
+                padding: 0 10px;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .hero-content h1 {
+                font-size: 1.6rem;
+            }
+            
+            .hero-content {
+                margin-bottom: 90px; /* Even more space on very small screens */
+            }
+            
+            .slider-controls {
+                bottom: 70px;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            .floating-admin-btn {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            /* Special fix for landscape mobile or tablets */
+            .hero-slider {
+                height: 85vh;
+            }
+            
+            .hero-content {
+                padding: 20px 15px;
+                margin-bottom: 70px;
+            }
+            
+            .slider-controls {
+                bottom: 90px;
+            }
+            
+            .hero-content h1 {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+            
+            .hero-content p {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="main-mode">
+    <!-- Floating Admin Button -->
+    <button class="floating-admin-btn" id="floatingAdminBtn" title="Admin Portal">
+        <i class="fas fa-cog"></i>
+    </button>
+    
+    <!-- Mode Toggle (shown only in admin mode) -->
+    <div class="mode-toggle">
+        <button class="mode-toggle-btn active" data-mode="main">Website</button>
+        <button class="mode-toggle-btn" data-mode="admin">Admin</button>
+    </div>
+
+    <!-- Main Website -->
+    <div id="main-website">
+        <!-- Header -->
+        <header>
+            <div class="header-container">
+                <div class="logo">
+                    <img src="./img/NHLS Logo.png" alt="New Horizon Landscaping Solutions" class="logo-img">
+                </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <nav class="main-nav" id="mainNav">
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero Slider -->
+        <section class="hero-slider" id="home">
+            <!-- Slide 1 -->
+            <div class="hero-slide active" style="background-image: url('./img/landscaping.jpg');">
+                <div class="hero-content">
+                    <h1>Premium <span class="highlight">Landscaping</span> Solutions</h1>
+                    <p>New Horizon Landscaping transforms outdoor spaces with sustainable, innovative designs. From residential gardens to commercial landscapes and sports fields, we deliver excellence in every project.</p>
+                    <a href="#contact" class="btn">Start Your Project</a>
+                    <a href="#services" class="btn btn-outline" style="margin-left: 15px;">Our Services</a>
+                </div>
+            </div>
+            
+            <!-- Slide 2 -->
+            <div class="hero-slide" style="background-image: url('./img/water-saving-irrigation.jpg');">
+                <div class="hero-content">
+                    <h1>Transforming <span class="highlight">Outdoor</span> Spaces</h1>
+                    <p>Expert hardscaping and softscaping solutions that blend functionality with natural beauty for lasting impact.</p>
+                    <a href="#gallery" class="btn">View Our Work</a>
+                    <a href="#contact" class="btn btn-outline" style="margin-left: 15px;">Get a Quote</a>
+                </div>
+            </div>
+            
+            <!-- Slide 3 -->
+            <div class="hero-slide" style="background-image: url('./img/Sustainable\ Landscape\ Design.jpg');">
+                <div class="hero-content">
+                    <h1>Sustainable <span class="highlight">Landscape</span> Design</h1>
+                    <p>Creating environmentally responsible outdoor spaces with water-efficient irrigation and native plant selections.</p>
+                    <a href="#services" class="btn">Our Services</a>
+                    <a href="#about" class="btn btn-outline" style="margin-left: 15px;">About Us</a>
+                </div>
+            </div>
+            
+            <div class="slider-controls">
+                <div class="slider-dots">
+                    <div class="slider-dot active" data-slide="0"></div>
+                    <div class="slider-dot" data-slide="1"></div>
+                    <div class="slider-dot" data-slide="2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services section-padding" id="services">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-title">Comprehensive Services</h2>
+                    <p class="section-subtitle">We provide end-to-end landscaping solutions, from initial design to ongoing maintenance, ensuring your outdoor space remains exceptional year-round.</p>
+                </div>
+                
+                <div class="services-grid">
+                    <!-- Service 1 -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Garden & Landscape Maintenance</h3>
+                            <p>Professional care to keep your outdoor spaces vibrant and healthy throughout the seasons.</p>
+                            <ul>
+                                <li>Regular Garden Maintenance</li>
+                                <li>Soft Landscaping Installation</li>
+                                <li>Re-vegetation Services</li>
+                                <li>Contract Growing for Projects</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Service 2 -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Hard Landscaping & Structures</h3>
+                            <p>Building durable, beautiful outdoor structures that complement your natural environment.</p>
+                            <ul>
+                                <li>Paving, Walls & Gabions</li>
+                                <li>Stairs, Pergolas & Water Features</li>
+                                <li>Ponds, Edging & Drainage</li>
+                                <li>Vertical Garden Systems</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Service 3 -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Irrigation & Water Management</h3>
+                            <p>Smart water solutions for sustainable, efficient landscape maintenance.</p>
+                            <ul>
+                                <li>Custom Irrigation System Design</li>
+                                <li>Grey Water System Installation</li>
+                                <li>Hydroseeding Applications</li>
+                                <li>Water Feature Design & Maintenance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Service 4 -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Specialized Landscaping Services</h3>
+                            <p>Expert solutions for unique outdoor requirements and environments.</p>
+                            <ul>
+                                <li>Sports Field Construction</li>
+                                <li>Sports Field Maintenance</li>
+                                <li>Environmental Contracting</li>
+                                <li>Project-Specific Landscape Design</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery section-padding" id="gallery">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-title">Our Project Gallery</h2>
+                    <p class="section-subtitle">Explore our portfolio of completed landscaping projects showcasing our expertise and craftsmanship.</p>
+                </div>
+                
+                <div class="gallery-filter">
+                    <button class="filter-btn active" data-filter="all">All Projects</button>
+                    <button class="filter-btn" data-filter="hardscaping">Hard Landscaping</button>
+                    <button class="filter-btn" data-filter="gardens">Gardens</button>
+                    <button class="filter-btn" data-filter="irrigation">Irrigation</button>
+                    <button class="filter-btn" data-filter="sports">Sports Fields</button>
+                </div>
+                
+                <div class="website-gallery-grid" id="websiteGalleryGrid">
+                    <!-- Gallery items will be loaded dynamically from localStorage -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about section-padding" id="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2 class="section-title">Crafting Exceptional Outdoor Spaces</h2>
+                        <p>At New Horizon Landscaping Solutions, we blend artistry with technical expertise to create outdoor environments that inspire and endure. With over 15 years of industry experience, we've mastered the balance between aesthetic beauty and functional design.</p>
+                        <p>Our team of certified professionals approaches each project with meticulous attention to detail, ensuring every element—from the initial design to the final installation—meets our exacting standards.</p>
+                        <p>We pride ourselves on sustainable practices, incorporating water-wise irrigation systems, native plant selections, and environmentally responsible materials into our designs. Our commitment extends beyond completion, with comprehensive maintenance services to preserve the beauty and integrity of your landscape.</p>
+                        <p>Whether transforming residential gardens, enhancing commercial properties, or constructing professional sports facilities, we deliver solutions that exceed expectations and stand the test of time.</p>
+                        <a href="#contact" class="btn" style="margin-top: 20px;">Discuss Your Project</a>
+                    </div>
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Professional landscaping team at work">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section section-padding" id="contact">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-title">Get In Touch</h2>
+                    <p class="section-subtitle">Contact us today to discuss your landscaping project. We'll respond within 24 hours.</p>
+                </div>
+                
+                <div class="contact-container">
+                    <!-- Contact Information -->
+                    <div class="contact-info">
+                        <h3>Contact Information</h3>
+                        
+                        <div class="contact-details">
+                            <div class="contact-detail-item">
+                                <div class="contact-detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="contact-detail-text">
+                                    <h4>Our Location</h4>
+                                    <p>92 Studley St, Southfield, Cape Town, 7801</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-detail-item">
+                                <div class="contact-detail-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="contact-detail-text">
+                                    <h4>Phone Number</h4>
+                                    <p>+27 79 267 2480</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-detail-item">
+                                <div class="contact-detail-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="contact-detail-text">
+                                    <h4>Email Address</h4>
+                                    <p>info@newhorizonlandscaping.co.za</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="business-hours">
+                            <h4>Business Hours</h4>
+                            <p><strong>Monday - Friday:</strong> 8:00 AM - 6:00 PM</p>
+                            <p><strong>Saturday:</strong> 9:00 AM - 4:00 PM</p>
+                            <p><strong>Sunday:</strong> Emergency Services Only</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Contact Form - NOW LINKED TO sendmail.php -->
+                    <div class="contact-form-container">
+                        <h3>Send Us a Message</h3>
+                        <form id="contactForm" action="sendmail.php" method="POST">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name *</label>
+                                    <input type="text" id="firstName" name="firstName" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="lastName">Last Name *</label>
+                                    <input type="text" id="lastName" name="lastName" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="service">Service Interested In</label>
+                                <select id="service" name="service" class="form-control">
+                                    <option value="">Select a service</option>
+                                    <option value="maintenance">Garden Maintenance</option>
+                                    <option value="hardscaping">Hard Landscaping</option>
+                                    <option value="irrigation">Irrigation Systems</option>
+                                    <option value="design">Landscape Design</option>
+                                    <option value="sports">Sports Fields</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" name="message" class="form-control" placeholder="Tell us about your project..." required></textarea>
+                            </div>
+                            
+                            <!-- Add a hidden field for spam protection (honeypot) -->
+                            <input type="text" name="website" style="display:none;" tabindex="-1" autocomplete="off">
+                            
+                            <div class="form-loading" id="formLoading">
+                                <i class="fas fa-spinner fa-spin"></i> Sending your message...
+                            </div>
+                            
+                            <button type="submit" class="btn btn-green" style="width: 100%; padding: 15px;">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                            
+                            <div class="form-success" id="formSuccess">
+                                <i class="fas fa-check-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                <h4>Thank You!</h4>
+                                <p>Your message has been sent successfully. We'll get back to you within 24 hours.</p>
+                            </div>
+                            
+                            <div class="form-error" id="formError">
+                                <i class="fas fa-exclamation-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                                <h4>Oops! Something went wrong</h4>
+                                <p id="errorMessage">There was an error sending your message. Please try again or contact us directly.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer --> 
+        <footer>
+            <div class="container">
+                <!-- Footer Main Content -->
+                <div class="footer-main">
+                    <div class="footer-logo-section">
+                        <div class="footer-logo">
+                            <img src="./img/NHLS Logo.png" alt="New Horizon Landscaping Solutions" class="logo-img">
+                        </div>
+                        <p class="footer-tagline">Premium landscaping solutions for residential, commercial, and municipal projects. Transforming outdoor spaces since 2008 with sustainable, innovative approaches.</p>
+                        <div class="footer-contact">
+                            <p><i class="fas fa-map-marker-alt"></i>92 Studley St, Southfield, Cape Town, 7801</p>
+                            <p><i class="fas fa-phone"></i> +27 79 267 2480</p>
+                            <p><i class="fas fa-envelope"></i> info@newhorizonlandscaping.co.za</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-links">
+                        <div class="footer-links-column">
+                            <h4>Quick Links</h4>
+                            <ul>
+                                <li><a href="#home">Home</a></li>
+                                <li><a href="#services">Services</a></li>
+                                <li><a href="#gallery">Gallery</a></li>
+                                <li><a href="#about">About Us</a></li>
+                                <li><a href="#contact">Contact</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-links-column">
+                            <h4>Our Services</h4>
+                            <ul>
+                                <li><a href="#services">Landscape Design</a></li>
+                                <li><a href="#services">Hard Landscaping</a></li>
+                                <li><a href="#services">Garden Maintenance</a></li>
+                                <li><a href="#services">Irrigation Systems</a></li>
+                                <li><a href="#services">Sports Fields</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider Line -->
+                <div class="footer-divider"></div>
+                
+                <!-- Copyright Section -->
+                <div class="footer-copyright">
+                    <p>Copyright © 2026 <span class="company-name">New Horizon Landscaping Solutions</span>. All rights reserved.</p>
+                    <p class="crafted-by">Crafted by <strong><a href="https://www.shailendralm.co.za/webdev.php/" class="brand-name">Shailendra Visuals</a></strong></p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Lightbox Modal -->
+        <div class="lightbox-modal" id="lightboxModal">
+            <span class="lightbox-close" id="lightboxClose">&times;</span>
+            <div class="lightbox-content" id="lightboxContent">
+                <img id="lightboxImage" src="" alt="">
+            </div>
+            <div class="lightbox-nav">
+                <div class="lightbox-nav-btn" id="lightboxPrev"><i class="fas fa-chevron-left"></i></div>
+                <div class="lightbox-nav-btn" id="lightboxNext"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Portal -->
+    <div id="admin-portal">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Admin Portal</h1>
+                <p>Upload and manage your gallery images directly from your phone or computer.</p>
+                <a href="#" class="back-to-site switch-to-main"><i class="fas fa-arrow-left"></i> Back to Website</a>
+            </div>
+            
+            <!-- Login form (initially shown) -->
+            <div id="loginSection" class="login-container">
+                <div class="login-form admin-card">
+                    <h2>Admin Login</h2>
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" class="form-control" placeholder="Enter admin password">
+                        <p class="password-hint"> </p>
+                    </div>
+                    <button id="loginBtn" class="btn btn-full">Login</button>
+                </div>
+            </div>
+            
+            <!-- Admin dashboard (initially hidden) -->
+            <div id="adminDashboard" style="display: none;">
+                <div class="admin-content">
+                    <div>
+                        <div class="admin-card">
+                            <h2>Upload New Image</h2>
+                            <div id="messageContainer"></div>
+                            
+                            <!-- File Upload Area -->
+                            <div class="file-upload-container" id="fileUploadContainer">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="file-upload-text">
+                                    <h4>Select or Drop Image</h4>
+                                    <p>Choose an image from your device or drag and drop it here</p>
+                                    <div class="file-upload-btn" id="browseBtn">
+                                        <i class="fas fa-folder-open"></i> Browse Files
+                                    </div>
+                                    <input type="file" id="imageFile" class="file-input" accept="image/*">
+                                </div>
+                            </div>
+                            
+                            <!-- Selected File Info -->
+                            <div class="selected-file" id="selectedFile">
+                                <div class="file-icon">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                <div class="file-info">
+                                    <h5 id="fileName">No file selected</h5>
+                                    <p id="fileSize">0 KB</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Image Preview -->
+                            <div class="image-preview" id="imagePreview">
+                                <img id="previewImage" src="" alt="Image preview">
+                            </div>
+                            
+                            <!-- Image Details Form -->
+                            <div class="form-group">
+                                <label for="imageTitle">Image Title *</label>
+                                <input type="text" id="imageTitle" class="form-control" placeholder="Beautiful Garden Design" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="imageDescription">Description</label>
+                                <textarea id="imageDescription" class="form-control" placeholder="Describe the project or image"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="imageCategory">Category *</label>
+                                <select id="imageCategory" class="form-control" required>
+                                    <option value="">Select a category</option>
+                                    <option value="hardscaping">Hard Landscaping</option>
+                                    <option value="gardens">Gardens</option>
+                                    <option value="irrigation">Irrigation</option>
+                                    <option value="sports">Sports Fields</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="vertical">Vertical Gardens</option>
+                                    <option value="water">Water Features</option>
+                                </select>
+                            </div>
+                            
+                            <button id="uploadBtn" class="btn btn-green btn-full" disabled>
+                                <i class="fas fa-upload"></i> Upload Image
+                            </button>
+                            
+                            <div class="storage-info">
+                                <p><strong>Note:</strong> Images are stored in your browser's local storage. They will be available only on this device and browser.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-card">
+                            <h2>Admin Tools</h2>
+                            <button id="exportGalleryBtn" class="btn btn-full" style="margin-bottom: 15px;">
+                                <i class="fas fa-download"></i> Export Gallery Data
+                            </button>
+                            <button id="importGalleryBtn" class="btn btn-full" style="margin-bottom: 15px;">
+                                <i class="fas fa-upload"></i> Import Gallery Data
+                            </button>
+                            <input type="file" id="importFile" class="file-input" accept=".json" style="display: none;">
+                            <button id="resetGalleryBtn" class="btn btn-red btn-full" style="margin-bottom: 15px;">
+                                <i class="fas fa-redo"></i> Reset to Default Gallery
+                            </button>
+                            <button id="logoutBtn" class="btn btn-full">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="gallery-management admin-card">
+                            <h2>Manage Gallery Images</h2>
+                            <p>Click the delete button to remove an image from the gallery.</p>
+                            <div id="galleryCount" class="message info">
+                                Loading gallery images...
+                            </div>
+                            
+                            <div id="galleryList" class="gallery-list">
+                                <!-- Gallery items will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin password
+        const ADMIN_PASSWORD = "admin123";
+        
+        // Global gallery images array
+        let galleryImages = [];
+        
+        // Floating admin button functionality
+        const floatingAdminBtn = document.getElementById('floatingAdminBtn');
+        
+        if (floatingAdminBtn) {
+            floatingAdminBtn.addEventListener('click', function() {
+                // If already in admin mode, switch back to main
+                if (document.body.classList.contains('admin-mode')) {
+                    // Switch back to main mode
+                    modeToggleBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('.mode-toggle-btn[data-mode="main"]').classList.add('active');
+                    document.body.className = 'main-mode';
+                    this.classList.remove('admin-active');
+                } else {
+                    // Switch to admin mode
+                    modeToggleBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('.mode-toggle-btn[data-mode="admin"]').classList.add('active');
+                    document.body.className = 'admin-mode';
+                    this.classList.add('admin-active');
+                    
+                    // Check login status
+                    checkLoginStatus();
+                }
+            });
+        }
+        
+        // Mode switching
+        const modeToggleBtns = document.querySelectorAll('.mode-toggle-btn');
+        const switchToMainBtn = document.querySelector('.switch-to-main');
+        
+        modeToggleBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mode = this.dataset.mode;
+                
+                modeToggleBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.body.className = `${mode}-mode`;
+                
+                // Update floating button state
+                if (floatingAdminBtn) {
+                    if (mode === 'admin') {
+                        floatingAdminBtn.classList.add('admin-active');
+                        checkLoginStatus();
+                    } else {
+                        floatingAdminBtn.classList.remove('admin-active');
+                    }
+                }
+            });
+        });
+        
+        if (switchToMainBtn) {
+            switchToMainBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                modeToggleBtns.forEach(b => b.classList.remove('active'));
+                document.querySelector('.mode-toggle-btn[data-mode="main"]').classList.add('active');
+                document.body.className = 'main-mode';
+                
+                // Update floating button state
+                if (floatingAdminBtn) {
+                    floatingAdminBtn.classList.remove('admin-active');
+                }
+            });
+        }
+        
+        // Main website functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mainNav = document.getElementById('mainNav');
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mainNav.classList.toggle('active');
+                mobileMenuBtn.innerHTML = mainNav.classList.contains('active') 
+                    ? '<i class="fas fa-times"></i>' 
+                    : '<i class="fas fa-bars"></i>';
+            });
+            
+            // Close mobile menu when clicking on a link
+            const navLinks = document.querySelectorAll('.main-nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mainNav.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                });
+            });
+        }
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (header && window.scrollY > 100) {
+                header.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
+                header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.08)';
+            } else if (header) {
+                header.style.backgroundColor = 'rgba(255, 255, 255, 0.97)';
+                header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
+            }
+        });
+        
+        // Hero Slider
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        const sliderDots = document.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            if (heroSlides.length > 0) {
+                heroSlides.forEach(slide => slide.classList.remove('active'));
+                sliderDots.forEach(dot => dot.classList.remove('active'));
+                
+                heroSlides[index].classList.add('active');
+                sliderDots[index].classList.add('active');
+                currentSlide = index;
+            }
+        }
+        
+        sliderDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+        
+        // Auto slide
+        if (heroSlides.length > 0) {
+            setInterval(() => {
+                let nextSlide = (currentSlide + 1) % heroSlides.length;
+                showSlide(nextSlide);
+            }, 6000);
+        }
+        
+        // Load gallery images from localStorage
+        function loadGalleryImages() {
+            const savedImages = localStorage.getItem('newHorizonGallery');
+            if (savedImages) {
+                try {
+                    galleryImages = JSON.parse(savedImages);
+                    // Filter out any invalid images
+                    galleryImages = galleryImages.filter(img => img && img.src && img.title);
+                } catch (error) {
+                    console.error('Error parsing gallery data:', error);
+                    loadDefaultGallery();
+                }
+            } else {
+                loadDefaultGallery();
+            }
+        }
+        
+        function loadDefaultGallery() {
+            galleryImages = [
+                {
+                    id: 1,
+                    src: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Modern Garden Design',
+                    category: 'gardens',
+                    description: 'Contemporary residential garden with clean lines'
+                },
+                {
+                    id: 2,
+                    src: 'https://images.unsplash.com/photo-1560703650-ef3e0f254ae0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Stone Patio Installation',
+                    category: 'hardscaping',
+                    description: 'Natural stone patio with integrated seating'
+                },
+                {
+                    id: 3,
+                    src: 'https://images.unsplash.com/photo-1591213953506-42adc6d60e7c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Sports Field Construction',
+                    category: 'sports',
+                    description: 'Professional soccer field with drainage system'
+                },
+                {
+                    id: 4,
+                    src: 'https://images.unsplash.com/photo-1593941707882-a5bba5338fe2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Irrigation System',
+                    category: 'irrigation',
+                    description: 'Smart irrigation installation for commercial property'
+                },
+                {
+                    id: 5,
+                    src: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Landscape Maintenance',
+                    category: 'gardens',
+                    description: 'Regular maintenance of corporate campus'
+                },
+                {
+                    id: 6,
+                    src: 'https://images.unsplash.com/photo-1564013798-04f7c5672ae1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    title: 'Water Feature Installation',
+                    category: 'hardscaping',
+                    description: 'Custom water feature with natural stone'
+                }
+            ];
+            saveGalleryImages();
+        }
+        
+        function saveGalleryImages() {
+            try {
+                if (galleryImages.length > 50) {
+                    galleryImages = galleryImages.slice(0, 50);
+                }
+                
+                localStorage.setItem('newHorizonGallery', JSON.stringify(galleryImages));
+            } catch (error) {
+                console.error('Save error:', error);
+            }
+        }
+        
+        // Render website gallery
+        function renderWebsiteGallery(filter) {
+            const galleryGrid = document.getElementById('websiteGalleryGrid');
+            if (!galleryGrid) return;
+            
+            galleryGrid.innerHTML = '';
+            
+            const filteredImages = filter === 'all' 
+                ? galleryImages 
+                : galleryImages.filter(img => img.category === filter);
+            
+            filteredImages.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'website-gallery-item';
+                galleryItem.dataset.category = image.category;
+                galleryItem.dataset.index = index;
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = image.src;
+                imgElement.alt = image.title || 'Gallery image';
+                
+                imgElement.onerror = function() {
+                    this.src = 'https://via.placeholder.com/300x200/1B5E20/FFFFFF?text=Image+Preview';
+                };
+                
+                galleryItem.innerHTML = `
+                    <div class="gallery-caption">
+                        <h4>${image.title || 'Untitled'}</h4>
+                        <p>${image.description || 'No description available'}</p>
+                    </div>
+                `;
+                
+                galleryItem.insertBefore(imgElement, galleryItem.firstChild);
+                galleryItem.addEventListener('click', () => openLightbox(index, filteredImages));
+                galleryGrid.appendChild(galleryItem);
+            });
+            
+            if (filteredImages.length === 0) {
+                galleryGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-medium);">No images found for this category.</div>';
+            }
+        }
+        
+        // Gallery filter for website
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderWebsiteGallery(this.dataset.filter);
+            });
+        });
+        
+        // Lightbox functionality
+        const lightboxModal = document.getElementById('lightboxModal');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const lightboxPrev = document.getElementById('lightboxPrev');
+        const lightboxNext = document.getElementById('lightboxNext');
+        
+        let currentLightboxImages = [];
+        let lightboxIndex = 0;
+        
+        function openLightbox(index, images) {
+            currentLightboxImages = images;
+            lightboxIndex = index;
+            updateLightbox();
+            lightboxModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function updateLightbox() {
+            if (currentLightboxImages[lightboxIndex]) {
+                lightboxImage.src = currentLightboxImages[lightboxIndex].src;
+                lightboxImage.alt = currentLightboxImages[lightboxIndex].title;
+            }
+        }
+        
+        function closeLightbox() {
+            lightboxModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', closeLightbox);
+        }
+        
+        if (lightboxModal) {
+            lightboxModal.addEventListener('click', (e) => {
+                if (e.target === lightboxModal) closeLightbox();
+            });
+        }
+        
+        if (lightboxPrev) {
+            lightboxPrev.addEventListener('click', () => {
+                lightboxIndex = (lightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
+                updateLightbox();
+            });
+        }
+        
+        if (lightboxNext) {
+            lightboxNext.addEventListener('click', () => {
+                lightboxIndex = (lightboxIndex + 1) % currentLightboxImages.length;
+                updateLightbox();
+            });
+        }
+        
+        // Keyboard navigation for lightbox
+        document.addEventListener('keydown', (e) => {
+            if (!lightboxModal || !lightboxModal.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxPrev.click();
+            if (e.key === 'ArrowRight') lightboxNext.click();
+        });
+        
+        // Contact Form Handling - NOW LINKED TO sendmail.php
+        const contactForm = document.getElementById('contactForm');
+        const formSuccess = document.getElementById('formSuccess');
+        const formError = document.getElementById('formError');
+        const errorMessage = document.getElementById('errorMessage');
+        const formLoading = document.getElementById('formLoading');
+        
+        if (contactForm) {
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Hide any previous messages
+                formSuccess.classList.remove('active');
+                formError.classList.remove('active');
+                formLoading.classList.add('active');
+                
+                // Get form values
+                const formData = new FormData(this);
+                
+                // Add honeypot check
+                const websiteField = formData.get('website');
+                if (websiteField) {
+                    // This is likely a bot - don't process the form
+                    formLoading.classList.remove('active');
+                    return;
+                }
+                
+                try {
+                    // Send form data to sendmail.php
+                    const response = await fetch('sendmail.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.text();
+                    
+                    formLoading.classList.remove('active');
+                    
+                    if (response.ok && result.includes('success')) {
+                        // Show success message
+                        formSuccess.classList.add('active');
+                        contactForm.reset();
+                        formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Hide success message after 5 seconds
+                        setTimeout(() => {
+                            formSuccess.classList.remove('active');
+                        }, 5000);
+                    } else {
+                        // Show error message
+                        errorMessage.textContent = result || 'There was an error sending your message. Please try again.';
+                        formError.classList.add('active');
+                    }
+                } catch (error) {
+                    formLoading.classList.remove('active');
+                    errorMessage.textContent = 'Network error. Please check your connection and try again.';
+                    formError.classList.add('active');
+                    console.error('Form submission error:', error);
+                }
+            });
+        }
+        
+        // Admin functionality
+        const loginSection = document.getElementById('loginSection');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const messageContainer = document.getElementById('messageContainer');
+        const fileUploadContainer = document.getElementById('fileUploadContainer');
+        const browseBtn = document.getElementById('browseBtn');
+        const imageFileInput = document.getElementById('imageFile');
+        const selectedFile = document.getElementById('selectedFile');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const imageTitleInput = document.getElementById('imageTitle');
+        const imageDescriptionInput = document.getElementById('imageDescription');
+        const imageCategoryInput = document.getElementById('imageCategory');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const resetGalleryBtn = document.getElementById('resetGalleryBtn');
+        const exportGalleryBtn = document.getElementById('exportGalleryBtn');
+        const importGalleryBtn = document.getElementById('importGalleryBtn');
+        const importFileInput = document.getElementById('importFile');
+        const adminGalleryList = document.getElementById('galleryList');
+        const galleryCount = document.getElementById('galleryCount');
+        
+        let selectedImageFile = null;
+        
+        // Check if user is already logged in
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('newHorizonAdminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                showAdminDashboard();
+            }
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            if (messageContainer) {
+                messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
+                
+                setTimeout(() => {
+                    messageContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+        
+        // Login function
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                const password = adminPasswordInput.value;
+                
+                if (password === ADMIN_PASSWORD) {
+                    localStorage.setItem('newHorizonAdminLoggedIn', 'true');
+                    showAdminDashboard();
+                    showMessage('Login successful!', 'success');
+                } else {
+                    showMessage('Incorrect password. Please try again.', 'error');
+                }
+            });
+        }
+        
+        // Logout function
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('newHorizonAdminLoggedIn');
+                if (adminDashboard) adminDashboard.style.display = 'none';
+                if (loginSection) loginSection.style.display = 'block';
+                if (adminPasswordInput) adminPasswordInput.value = '';
+            });
+        }
+        
+        // Show admin dashboard
+        function showAdminDashboard() {
+            if (loginSection) loginSection.style.display = 'none';
+            if (adminDashboard) adminDashboard.style.display = 'block';
+            loadAdminGalleryImages();
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Handle file selection for admin
+        if (browseBtn) {
+            browseBtn.addEventListener('click', () => {
+                if (imageFileInput) imageFileInput.click();
+            });
+        }
+        
+        if (imageFileInput) {
+            imageFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+        }
+        
+        // Handle drag and drop for admin
+        if (fileUploadContainer) {
+            fileUploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadContainer.classList.add('drag-over');
+            });
+            
+            fileUploadContainer.addEventListener('dragleave', () => {
+                fileUploadContainer.classList.remove('drag-over');
+            });
+            
+            fileUploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadContainer.classList.remove('drag-over');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+        }
+        
+        // Handle file selection for admin
+        function handleFileSelect(file) {
+            if (!file.type.match('image.*')) {
+                showMessage('Please select an image file (JPEG, PNG, etc.)', 'error');
+                return;
+            }
+            
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showMessage('Image size should be less than 5MB', 'error');
+                return;
+            }
+            
+            selectedImageFile = file;
+            
+            if (fileName) fileName.textContent = file.name;
+            if (fileSize) fileSize.textContent = formatFileSize(file.size);
+            if (selectedFile) selectedFile.classList.add('active');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (previewImage) previewImage.src = e.target.result;
+                if (imagePreview) imagePreview.classList.add('active');
+            };
+            reader.readAsDataURL(file);
+            
+            checkFormValidity();
+            showMessage('Image selected successfully!', 'success');
+        }
+        
+        // Check if form is valid
+        function checkFormValidity() {
+            const isTitleValid = imageTitleInput && imageTitleInput.value.trim().length > 0;
+            const isCategoryValid = imageCategoryInput && imageCategoryInput.value.trim().length > 0;
+            const hasImage = selectedImageFile !== null;
+            
+            if (uploadBtn) {
+                uploadBtn.disabled = !(isTitleValid && isCategoryValid && hasImage);
+            }
+        }
+        
+        // Listen for form input changes
+        if (imageTitleInput) {
+            imageTitleInput.addEventListener('input', checkFormValidity);
+        }
+        
+        if (imageCategoryInput) {
+            imageCategoryInput.addEventListener('change', checkFormValidity);
+        }
+        
+        // Load admin gallery images
+        function loadAdminGalleryImages() {
+            if (galleryCount) {
+                galleryCount.textContent = `You have ${galleryImages.length} image${galleryImages.length !== 1 ? 's' : ''} in your gallery.`;
+                galleryCount.className = 'message info';
+            }
+            renderAdminGalleryList();
+        }
+        
+        // Render admin gallery list
+        function renderAdminGalleryList() {
+            if (!adminGalleryList) return;
+            
+            adminGalleryList.innerHTML = '';
+            
+            if (galleryImages.length === 0) {
+                adminGalleryList.innerHTML = '<div class="message info">No images in gallery yet. Upload some images to get started!</div>';
+                return;
+            }
+            
+            galleryImages.forEach((image, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                
+                galleryItem.innerHTML = `
+                    <img src="${image.src}" alt="${image.title}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+                    <div class="gallery-item-info">
+                        <h4>${image.title}</h4>
+                        <p>${image.description || 'No description'}</p>
+                        <div class="category-badge">${image.category}</div>
+                        <div class="gallery-item-actions">
+                            <button class="btn btn-red delete-btn" data-index="${index}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                adminGalleryList.appendChild(galleryItem);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    deleteImage(index);
+                });
+            });
+        }
+        
+        // Delete image from gallery
+        function deleteImage(index) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                galleryImages.splice(index, 1);
+                saveGalleryImages();
+                loadAdminGalleryImages();
+                renderWebsiteGallery('all');
+                showMessage('Image deleted successfully!', 'success');
+            }
+        }
+        
+        // Upload new image
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+                if (!selectedImageFile) {
+                    showMessage('Please select an image first', 'error');
+                    return;
+                }
+                
+                const title = imageTitleInput.value.trim();
+                const description = imageDescriptionInput.value.trim();
+                const category = imageCategoryInput.value;
+                
+                if (!title) {
+                    showMessage('Please enter an image title', 'error');
+                    return;
+                }
+                
+                if (!category) {
+                    showMessage('Please select a category', 'error');
+                    return;
+                }
+                
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<span class="spinner"></span> Uploading...';
+                uploadBtn.disabled = true;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newImage = {
+                        id: Date.now(),
+                        src: e.target.result,
+                        title: title,
+                        description: description,
+                        category: category,
+                        uploaded: new Date().toISOString()
+                    };
+                    
+                    galleryImages.push(newImage);
+                    saveGalleryImages();
+                    loadAdminGalleryImages();
+                    renderWebsiteGallery('all');
+                    
+                    // Reset form
+                    resetAdminForm();
+                    
+                    uploadBtn.innerHTML = originalText;
+                    checkFormValidity();
+                    
+                    showMessage('Image uploaded successfully!', 'success');
+                };
+                
+                reader.onerror = function() {
+                    showMessage('Error reading image file. Please try again.', 'error');
+                    uploadBtn.innerHTML = originalText;
+                    checkFormValidity();
+                };
+                
+                reader.readAsDataURL(selectedImageFile);
+            });
+        }
+        
+        // Reset admin form
+        function resetAdminForm() {
+            if (imageTitleInput) imageTitleInput.value = '';
+            if (imageDescriptionInput) imageDescriptionInput.value = '';
+            if (imageCategoryInput) imageCategoryInput.value = '';
+            selectedImageFile = null;
+            if (selectedFile) selectedFile.classList.remove('active');
+            if (imagePreview) imagePreview.classList.remove('active');
+            if (previewImage) previewImage.src = '';
+            if (imageFileInput) imageFileInput.value = '';
+        }
+        
+        // Reset gallery to default
+        if (resetGalleryBtn) {
+            resetGalleryBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset the gallery to default images? This will remove all your uploaded images.')) {
+                    loadDefaultGallery();
+                    saveGalleryImages();
+                    loadAdminGalleryImages();
+                    renderWebsiteGallery('all');
+                    showMessage('Gallery reset to default images!', 'success');
+                }
+            });
+        }
+        
+        // Export gallery data
+        if (exportGalleryBtn) {
+            exportGalleryBtn.addEventListener('click', () => {
+                const dataStr = JSON.stringify(galleryImages, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'new-horizon-gallery-backup.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showMessage('Gallery data exported successfully!', 'success');
+            });
+        }
+        
+        // Import gallery data
+        if (importGalleryBtn) {
+            importGalleryBtn.addEventListener('click', () => {
+                if (importFileInput) importFileInput.click();
+            });
+        }
+        
+        if (importFileInput) {
+            importFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    
+                    if (!file.name.endsWith('.json')) {
+                        showMessage('Please select a JSON file', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            
+                            if (!Array.isArray(importedData)) {
+                                showMessage('Invalid gallery data format', 'error');
+                                return;
+                            }
+                            
+                            const isValid = importedData.every(item => 
+                                item.src && item.title && item.category
+                            );
+                            
+                            if (!isValid) {
+                                showMessage('Some gallery items are missing required fields', 'error');
+                                return;
+                            }
+                            
+                            if (confirm(`Import ${importedData.length} images? This will replace your current gallery.`)) {
+                                galleryImages = importedData;
+                                saveGalleryImages();
+                                loadAdminGalleryImages();
+                                renderWebsiteGallery('all');
+                                showMessage(`Successfully imported ${importedData.length} images!`, 'success');
+                            }
+                        } catch (error) {
+                            showMessage('Error parsing JSON file: ' + error.message, 'error');
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                    importFileInput.value = '';
+                }
+            });
+        }
+        
+        // Allow Enter key to submit login form
+        if (adminPasswordInput) {
+            adminPasswordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && loginBtn) {
+                    loginBtn.click();
+                }
+            });
+        }
+        
+        // Initialize everything on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGalleryImages();
+            renderWebsiteGallery('all');
+            checkLoginStatus();
+            
+            // Update gallery count if we're in admin mode
+            if (document.body.classList.contains('admin-mode')) {
+                loadAdminGalleryImages();
+            }
+        });
+    </script>
+</body>
+</html>
