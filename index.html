@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2381,14 +2381,15 @@ footer {
         }, 6000);
     }
    
-    // Load gallery images from localStorage
+    // Load gallery images from localStorage AND server
     function loadGalleryImages() {
+        // First load from localStorage for fallback
         const savedImages = localStorage.getItem('newHorizonGallery');
         if (savedImages) {
             try {
                 galleryImages = JSON.parse(savedImages);
                 // Filter out any invalid images
-                galleryImages = galleryImages.filter(img => img && (img.src || img.dataUrl) && img.title);
+                galleryImages = galleryImages.filter(img => img && (img.src || img.fileName || img.dataUrl) && img.title);
             } catch (error) {
                 console.error('Error parsing gallery data:', error);
                 loadDefaultGallery();
@@ -2397,56 +2398,85 @@ footer {
             loadDefaultGallery();
         }
         
-        renderWebsiteGallery('all');
+        // Then try to load from server
+        fetch('get_gallery.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server not available');
+                }
+                return response.json();
+            })
+            .then(serverImages => {
+                if (serverImages && serverImages.length > 0) {
+                    // Merge server images with local images
+                    const serverImageIds = new Set(serverImages.map(img => img.id));
+                    
+                    // Add local images that aren't on server
+                    galleryImages.forEach(localImage => {
+                        if (!serverImageIds.has(localImage.id)) {
+                            serverImages.push(localImage);
+                        }
+                    });
+                    
+                    galleryImages = serverImages;
+                    saveGalleryImages();
+                }
+            })
+            .catch(error => {
+                console.log('Could not load from server, using local data:', error.message);
+            })
+            .finally(() => {
+                renderWebsiteGallery('all');
+            });
     }
    
     function loadDefaultGallery() {
-    galleryImages = [
-        {
-            id: Date.now() + 1,
-            src: './img/small-garden.jpg',
-            title: 'Modern Garden Design',
-            category: 'gardens',
-            description: 'Contemporary residential garden with clean lines'
-        },
-        {
-            id: Date.now() + 2,
-            src: './img/landscaping.jpg',
-            title: 'Professional Landscaping',
-            category: 'hardscaping',
-            description: 'Expert hardscape installation'
-        },
-        {
-            id: Date.now() + 3,
-            src: './img/flagstone-patio.jpg',
-            title: 'Stone Patio',
-            category: 'hardscaping',
-            description: 'Natural stone patio with seating area'
-        },
-        {
-            id: Date.now() + 4,
-            src: './img/water-saving-irrigation.jpg',
-            title: 'Irrigation System',
-            category: 'irrigation',
-            description: 'Professional irrigation installation'
-        },
-        {
-            id: Date.now() + 5,
-            src: './img/Sustainable Landscape Design.jpg',
-            title: 'Garden Maintenance',
-            category: 'gardens',
-            description: 'Regular garden care and upkeep'
-        },
-        {
-            id: Date.now() + 6,
-            src: './img/DBI-Bb-feature.jpg',
-            title: 'Water Feature',
-            category: 'hardscaping',
-            description: 'Custom water feature installation'
-        }
-    ];
-    saveGalleryImages();
-}
+        galleryImages = [
+            {
+                id: Date.now() + 1,
+                src: './img/small-garden.jpg',
+                title: 'Modern Garden Design',
+                category: 'gardens',
+                description: 'Contemporary residential garden with clean lines'
+            },
+            {
+                id: Date.now() + 2,
+                src: './img/landscaping.jpg',
+                title: 'Professional Landscaping',
+                category: 'hardscaping',
+                description: 'Expert hardscape installation'
+            },
+            {
+                id: Date.now() + 3,
+                src: './img/flagstone-patio.jpg',
+                title: 'Stone Patio',
+                category: 'hardscaping',
+                description: 'Natural stone patio with seating area'
+            },
+            {
+                id: Date.now() + 4,
+                src: './img/water-saving-irrigation.jpg',
+                title: 'Irrigation System',
+                category: 'irrigation',
+                description: 'Professional irrigation installation'
+            },
+            {
+                id: Date.now() + 5,
+                src: './img/Sustainable Landscape Design.jpg',
+                title: 'Garden Maintenance',
+                category: 'gardens',
+                description: 'Regular garden care and upkeep'
+            },
+            {
+                id: Date.now() + 6,
+                src: './img/DBI-Bb-feature.jpg',
+                title: 'Water Feature',
+                category: 'hardscaping',
+                description: 'Custom water feature installation'
+            }
+        ];
+        saveGalleryImages();
+    }
    
     function saveGalleryImages() {
         try {
@@ -2483,11 +2513,13 @@ footer {
             galleryItem.dataset.index = index;
            
             const imgElement = document.createElement('img');
-            // Use dataUrl if available (for uploaded images), otherwise use src
-            if (image.dataUrl) {
-                imgElement.src = image.dataUrl;
+            // Use server path if available, otherwise use stored src or dataUrl
+            if (image.fileName) {
+                imgElement.src = 'img/' + image.fileName;
             } else if (image.src) {
                 imgElement.src = image.src;
+            } else if (image.dataUrl) {
+                imgElement.src = image.dataUrl;
             } else {
                 imgElement.src = 'https://via.placeholder.com/300x200/1B5E20/FFFFFF?text=Image+Preview';
             }
@@ -2541,10 +2573,12 @@ footer {
     function updateLightbox() {
         if (currentLightboxImages[lightboxIndex]) {
             const image = currentLightboxImages[lightboxIndex];
-            if (image.dataUrl) {
-                lightboxImage.src = image.dataUrl;
+            if (image.fileName) {
+                lightboxImage.src = 'img/' + image.fileName;
             } else if (image.src) {
                 lightboxImage.src = image.src;
+            } else if (image.dataUrl) {
+                lightboxImage.src = image.dataUrl;
             }
             lightboxImage.alt = image.title;
         }
@@ -2615,18 +2649,38 @@ footer {
                 return;
             }
            
-            // Simulate form submission (remove this in production)
-            setTimeout(() => {
-                formLoading.classList.remove('active');
-                formSuccess.classList.add('active');
-                contactForm.reset();
-                formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            try {
+                // Send form data to sendmail.php
+                const response = await fetch('sendmail.php', {
+                    method: 'POST',
+                    body: formData
+                });
                
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    formSuccess.classList.remove('active');
-                }, 5000);
-            }, 1500);
+                const result = await response.text();
+               
+                formLoading.classList.remove('active');
+               
+                if (response.ok && result.includes('success')) {
+                    // Show success message
+                    formSuccess.classList.add('active');
+                    contactForm.reset();
+                    formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                   
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        formSuccess.classList.remove('active');
+                    }, 5000);
+                } else {
+                    // Show error message
+                    errorMessage.textContent = result || 'There was an error sending your message. Please try again.';
+                    formError.classList.add('active');
+                }
+            } catch (error) {
+                formLoading.classList.remove('active');
+                errorMessage.textContent = 'Network error. Please check your connection and try again.';
+                formError.classList.add('active');
+                console.error('Form submission error:', error);
+            }
         });
     }
    
@@ -2828,8 +2882,10 @@ footer {
             const galleryItem = document.createElement('div');
             galleryItem.className = 'gallery-item';
            
-            // Use dataUrl if available (for uploaded images), otherwise use src
-            const imageSrc = image.dataUrl ? image.dataUrl : (image.src || 'https://via.placeholder.com/300x200?text=Image+Not+Found');
+            // Use server path if available, otherwise use stored src or dataUrl
+            const imageSrc = image.fileName ? 'img/' + image.fileName : 
+                            (image.src ? image.src : 
+                            (image.dataUrl ? image.dataUrl : 'https://via.placeholder.com/300x200?text=Image+Not+Found'));
            
             galleryItem.innerHTML = `
                 <img src="${imageSrc}" alt="${image.title}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
@@ -2838,7 +2894,7 @@ footer {
                     <p>${image.description || 'No description'}</p>
                     <div class="category-badge">${image.category}</div>
                     <div class="gallery-item-actions">
-                        <button class="btn btn-red delete-btn" data-index="${index}">
+                        <button class="btn btn-red delete-btn" data-index="${index}" data-id="${image.id || ''}" data-filename="${image.fileName || ''}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
@@ -2852,23 +2908,66 @@ footer {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const index = parseInt(this.dataset.index);
-                deleteImage(index);
+                const imageId = this.dataset.id;
+                const fileName = this.dataset.filename;
+                deleteImage(index, imageId, fileName);
             });
         });
     }
    
     // Delete image from gallery
-    function deleteImage(index) {
+    function deleteImage(index, imageId, fileName) {
         if (confirm('Are you sure you want to delete this image?')) {
-            galleryImages.splice(index, 1);
-            saveGalleryImages();
-            loadAdminGalleryImages();
-            renderWebsiteGallery('all');
-            showMessage('Image deleted successfully!', 'success');
+            const imageToDelete = galleryImages[index];
+            
+            // Try to delete from server first if we have a server image
+            if (imageId && fileName) {
+                fetch('delete_image.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        id: imageId,
+                        fileName: fileName 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        galleryImages.splice(index, 1);
+                        saveGalleryImages();
+                        loadAdminGalleryImages();
+                        renderWebsiteGallery('all');
+                        showMessage('Image deleted successfully from server!', 'success');
+                    } else {
+                        // Server delete failed, try local delete
+                        console.error('Server delete failed:', data.message);
+                        deleteLocalImage(index);
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    // Server unavailable, delete locally
+                    deleteLocalImage(index);
+                });
+            } else {
+                // Local image only
+                deleteLocalImage(index);
+            }
         }
     }
+    
+    // Helper function to delete image locally
+    function deleteLocalImage(index) {
+        galleryImages.splice(index, 1);
+        saveGalleryImages();
+        loadAdminGalleryImages();
+        renderWebsiteGallery('all');
+        showMessage('Image deleted successfully!', 'success');
+    }
    
-    // Upload new image - USING LOCALSTORAGE (no PHP needed)
+    // Upload new image - Hybrid approach (PHP server + localStorage fallback)
     if (uploadBtn) {
         uploadBtn.addEventListener('click', () => {
             if (!selectedImageFile) {
@@ -2894,34 +2993,83 @@ footer {
             uploadBtn.innerHTML = '<span class="spinner"></span> Uploading...';
             uploadBtn.disabled = true;
            
-            // Convert image to data URL
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Add new image to gallery
-                const newImage = {
-                    id: Date.now(),
-                    dataUrl: e.target.result,
-                    title: title,
-                    description: description,
-                    category: category,
-                    uploaded: new Date().toISOString()
+            // Try PHP upload first
+            const formData = new FormData();
+            formData.append('image', selectedImageFile);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('category', category);
+           
+            fetch('upload_image.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server error');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // PHP upload successful
+                    const newImage = {
+                        id: data.id,
+                        fileName: data.fileName,
+                        title: title,
+                        description: description,
+                        category: category,
+                        uploaded: new Date().toISOString()
+                    };
+                   
+                    galleryImages.push(newImage);
+                    saveGalleryImages();
+                    loadAdminGalleryImages();
+                    renderWebsiteGallery('all');
+                   
+                    // Reset form
+                    resetAdminForm();
+                   
+                    uploadBtn.innerHTML = originalText;
+                    checkFormValidity();
+                   
+                    showMessage('Image uploaded successfully to server!', 'success');
+                } else {
+                    // PHP upload failed, fall back to localStorage
+                    throw new Error(data.message || 'PHP upload failed');
+                }
+            })
+            .catch(error => {
+                // Fall back to localStorage
+                console.log('PHP upload failed, using localStorage fallback:', error.message);
+               
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newImage = {
+                        id: Date.now(),
+                        dataUrl: e.target.result,
+                        title: title,
+                        description: description,
+                        category: category,
+                        uploaded: new Date().toISOString()
+                    };
+                   
+                    galleryImages.push(newImage);
+                    saveGalleryImages();
+                    loadAdminGalleryImages();
+                    renderWebsiteGallery('all');
+                   
+                    // Reset form
+                    resetAdminForm();
+                   
+                    uploadBtn.innerHTML = originalText;
+                    checkFormValidity();
+                   
+                    showMessage('Image saved locally (PHP server unavailable)', 'warning');
                 };
                
-                galleryImages.push(newImage);
-                saveGalleryImages();
-                loadAdminGalleryImages();
-                renderWebsiteGallery('all');
-               
-                // Reset form
-                resetAdminForm();
-               
-                uploadBtn.innerHTML = originalText;
-                checkFormValidity();
-               
-                showMessage('Image uploaded successfully!', 'success');
-            };
-           
-            reader.readAsDataURL(selectedImageFile);
+                reader.readAsDataURL(selectedImageFile);
+            });
         });
     }
    
@@ -2996,7 +3144,7 @@ footer {
                         }
                        
                         const isValid = importedData.every(item =>
-                            (item.src || item.dataUrl) && item.title && item.category
+                            (item.src || item.fileName || item.dataUrl) && item.title && item.category
                         );
                        
                         if (!isValid) {
