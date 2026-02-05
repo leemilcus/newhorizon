@@ -4,17 +4,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Create uploads directory if it doesn't exist
-$uploadsDir = 'uploads/';
-if (!file_exists($uploadsDir)) {
-    mkdir($uploadsDir, 0777, true);
-}
-
-// Create gallery_data directory for JSON storage
-$dataDir = 'gallery_data/';
-if (!file_exists($dataDir)) {
-    mkdir($dataDir, 0777, true);
-}
+// Define the img folder
+$imgDir = 'img/';
 
 $response = [
     'success' => false,
@@ -51,27 +42,28 @@ try {
 
     // Generate unique filename
     $fileExtension = pathinfo($imageFile['name'], PATHINFO_EXTENSION);
-    $uniqueFilename = 'user_' . time() . '_' . uniqid() . '.' . strtolower($fileExtension);
-    $uploadPath = $uploadsDir . $uniqueFilename;
+    $uniqueFilename = 'project_' . time() . '_' . uniqid() . '.' . strtolower($fileExtension);
+    $uploadPath = $imgDir . $uniqueFilename;
 
-    // Move uploaded file
+    // Move uploaded file to img folder
     if (!move_uploaded_file($imageFile['tmp_name'], $uploadPath)) {
-        throw new Exception('Failed to save uploaded file.');
+        throw new Exception('Failed to save uploaded file to img folder.');
     }
 
-    // Create project data
+    // Create project data with relative path
     $projectId = 'user_' . uniqid();
     $project = [
         'id' => $projectId,
         'title' => $title,
         'description' => $description,
-        'image' => $uploadPath,
+        'image' => './img/' . $uniqueFilename, // Relative path
         'isManual' => false,
-        'uploadDate' => date('Y-m-d H:i:s')
+        'uploadDate' => date('Y-m-d H:i:s'),
+        'filename' => $uniqueFilename // Store filename for deletion
     ];
 
     // Load existing user projects
-    $userProjectsFile = $dataDir . 'user_projects.json';
+    $userProjectsFile = 'user_projects.json';
     $userProjects = [];
     
     if (file_exists($userProjectsFile)) {
@@ -87,7 +79,7 @@ try {
 
     // Return success response
     $response['success'] = true;
-    $response['message'] = 'Image uploaded successfully!';
+    $response['message'] = 'Image uploaded successfully to img folder!';
     $response['project'] = $project;
 
 } catch (Exception $e) {
