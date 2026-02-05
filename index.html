@@ -2246,524 +2246,566 @@ footer {
             </div>
         </div>
     </div>
-    <script>
-    // Admin password
-    const ADMIN_PASSWORD = "admin123";
-   
-    // Global gallery images array
-    let galleryImages = [];
-   
-    // Floating admin button functionality
-    const floatingAdminBtn = document.getElementById('floatingAdminBtn');
-   
-    if (floatingAdminBtn) {
-        floatingAdminBtn.addEventListener('click', function() {
-            // If already in admin mode, switch back to main
-            if (document.body.classList.contains('admin-mode')) {
-                // Switch back to main mode
-                modeToggleBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('.mode-toggle-btn[data-mode="main"]').classList.add('active');
-                document.body.className = 'main-mode';
-                this.classList.remove('admin-active');
-            } else {
-                // Switch to admin mode
-                modeToggleBtns.forEach(b => b.classList.remove('active'));
-                document.querySelector('.mode-toggle-btn[data-mode="admin"]').classList.add('active');
-                document.body.className = 'admin-mode';
-                this.classList.add('admin-active');
-               
-                // Check login status
-                checkLoginStatus();
+   <script>
+    // ========== CONFIGURATION ==========
+    const ADMIN_PASSWORD = "NewHorizon2026!";
+    const SERVER_URL = window.location.origin;
+
+    // ========== GLOBAL DATA ==========
+    let userProjects = [];
+    let statistics = {};
+    let testimonialsData = [];
+
+    // Default testimonials (will be loaded from server)
+    const defaultTestimonials = [
+        {
+            name: "Mike T.",
+            rating: "★★★★★",
+            text: "The New Horizon team transformed my backyard into a beautiful oasis. Their attention to detail and professionalism was outstanding!",
+            avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+        },
+        {
+            name: "Amanda K.",
+            rating: "★★★★☆",
+            text: "Excellent landscaping service. The team was punctual, careful with my property, and delivered beyond expectations.",
+            avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+        },
+        {
+            name: "James T.",
+            rating: "★★★★★",
+            text: "Professional garden design that completely transformed my overgrown yard. Very happy with their work!",
+            avatar: "https://randomuser.me/api/portraits/men/67.jpg"
+        }
+    ];
+
+    // ========== LIGHTBOX GALLERY ==========
+    let currentLightboxIndex = 0;
+    let allGalleryImages = [];
+
+    function openLightbox(index) {
+        currentLightboxIndex = index;
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+    
+        if (lightboxOverlay && lightboxImage && lightboxCounter) {
+            lightboxImage.src = allGalleryImages[index].image;
+            lightboxCounter.textContent = `${index + 1} / ${allGalleryImages.length}`;
+            lightboxOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeLightbox() {
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+        if (lightboxOverlay) {
+            lightboxOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function navigateLightbox(direction) {
+        currentLightboxIndex += direction;
+    
+        if (currentLightboxIndex < 0) {
+            currentLightboxIndex = allGalleryImages.length - 1;
+        } else if (currentLightboxIndex >= allGalleryImages.length) {
+            currentLightboxIndex = 0;
+        }
+    
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+    
+        if (lightboxImage && lightboxCounter) {
+            lightboxImage.src = allGalleryImages[currentLightboxIndex].image;
+            lightboxCounter.textContent = `${currentLightboxIndex + 1} / ${allGalleryImages.length}`;
+        }
+    }
+
+    function initializeLightbox() {
+        const lightboxClose = document.getElementById('lightboxClose');
+        const lightboxPrev = document.getElementById('lightboxPrev');
+        const lightboxNext = document.getElementById('lightboxNext');
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+    
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', closeLightbox);
+        }
+    
+        if (lightboxPrev) {
+            lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+        }
+    
+        if (lightboxNext) {
+            lightboxNext.addEventListener('click', () => navigateLightbox(1));
+        }
+    
+        if (lightboxOverlay) {
+            lightboxOverlay.addEventListener('click', (e) => {
+                if (e.target === lightboxOverlay) {
+                    closeLightbox();
+                }
+            });
+        }
+    
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const lightboxOverlay = document.getElementById('lightboxOverlay');
+            if (!lightboxOverlay || !lightboxOverlay.classList.contains('active')) return;
+        
+            switch(e.key) {
+                case 'Escape':
+                    closeLightbox();
+                    break;
+                case 'ArrowLeft':
+                    navigateLightbox(-1);
+                    break;
+                case 'ArrowRight':
+                    navigateLightbox(1);
+                    break;
             }
         });
     }
-   
-    // Mode switching
+
+    // ========== COUNTER FUNCTIONS ==========
+    function updateCounters() {
+        const projectsCounter = document.getElementById('projects-counter');
+        const clientsCounter = document.getElementById('clients-counter');
+        const experienceCounter = document.getElementById('experience-counter');
+    
+        if (projectsCounter) {
+            projectsCounter.textContent = statistics.projects;
+            projectsCounter.classList.add('counting');
+            setTimeout(() => projectsCounter.classList.remove('counting'), 1000);
+        }
+    
+        if (clientsCounter) {
+            clientsCounter.textContent = statistics.clients;
+            clientsCounter.classList.add('counting');
+            setTimeout(() => clientsCounter.classList.remove('counting'), 1000);
+        }
+    
+        if (experienceCounter) {
+            experienceCounter.textContent = statistics.experience;
+            experienceCounter.classList.add('counting');
+            setTimeout(() => experienceCounter.classList.remove('counting'), 1000);
+        }
+    }
+
+    function animateCounter(element, target, duration = 2000) {
+        if (!element) return;
+    
+        let start = 0;
+        const increment = target / (duration / 50);
+    
+        element.textContent = '0';
+        element.classList.add('counting');
+    
+        const updateCounter = () => {
+            start += increment;
+            if (start < target) {
+                element.textContent = Math.floor(start);
+                setTimeout(updateCounter, 50);
+            } else {
+                element.textContent = target;
+                setTimeout(() => element.classList.remove('counting'), 1000);
+            }
+        };
+    
+        updateCounter();
+    }
+
+    // ========== SERVER FUNCTIONS ==========
+    async function loadAllDataFromServer() {
+        try {
+            // Load projects from server
+            const projectsResponse = await fetch('get_gallery.php');
+            if (projectsResponse.ok) {
+                const projectsData = await projectsResponse.json();
+            
+                if (projectsData.success) {
+                    userProjects = projectsData.userProjects || [];
+                    console.log('Loaded projects from server:', userProjects.length);
+                } else {
+                    console.error('Server returned error:', projectsData.message);
+                    loadFromLocalStorage();
+                }
+            } else {
+                console.error('Failed to load projects from server');
+                loadFromLocalStorage();
+            }
+        
+            // Load statistics from server
+            const statsResponse = await fetch('get_statistics.php');
+            if (statsResponse.ok) {
+                const statsData = await statsResponse.json();
+                if (statsData.success) {
+                    statistics = statsData.statistics || { projects: 0, clients: 0, experience: 0 };
+                } else {
+                    statistics = { projects: 0, clients: 0, experience: 0 };
+                }
+            } else {
+                statistics = { projects: 0, clients: 0, experience: 0 };
+            }
+        
+            return true;
+        
+        } catch (error) {
+            console.error('Error loading from server:', error);
+            loadFromLocalStorage();
+            return false;
+        }
+    }
+
+    function loadFromLocalStorage() {
+        // Load user projects
+        const savedProjects = localStorage.getItem('newHorizonProjects');
+        if (savedProjects) {
+            try {
+                userProjects = JSON.parse(savedProjects);
+            } catch (error) {
+                console.error('Error parsing projects:', error);
+                userProjects = [];
+            }
+        }
+    
+        // Load statistics
+        const savedStats = localStorage.getItem('newHorizonStatistics');
+        if (savedStats) {
+            try {
+                statistics = JSON.parse(savedStats);
+            } catch (error) {
+                console.error('Error parsing statistics:', error);
+                statistics = { projects: 0, clients: 0, experience: 0 };
+            }
+        } else {
+            statistics = { projects: 0, clients: 0, experience: 0 };
+        }
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('newHorizonProjects', JSON.stringify(userProjects));
+        localStorage.setItem('newHorizonStatistics', JSON.stringify(statistics));
+    }
+
+    // ========== PROJECT MANAGEMENT ==========
+    async function addProject(title, description, category, imageFile) {
+        try {
+            const formData = new FormData();
+            formData.append('image', imageFile);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('category', category);
+        
+            const response = await fetch('upload_image.php', {
+                method: 'POST',
+                body: formData
+            });
+        
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+        
+            const result = await response.json();
+        
+            if (result.success) {
+                resetAdminForm();
+                await loadAllDataFromServer();
+                refreshPortfolio();
+                
+                if (document.body.classList.contains('admin-mode')) {
+                    renderAdminGalleryList();
+                }
+                
+                return {
+                    success: true,
+                    message: 'Project added successfully!',
+                    project: result.project
+                };
+            } else {
+                throw new Error(result.message || 'Upload failed');
+            }
+        
+        } catch (error) {
+            console.error('Upload error:', error);
+            return {
+                success: false,
+                message: 'Failed to add project: ' + error.message
+            };
+        }
+    }
+
+    async function deleteProject(projectId, filename) {
+        if (!confirm('Are you sure you want to delete this project? The image file will be permanently removed.')) {
+            return;
+        }
+    
+        try {
+            const response = await fetch('delete_image.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: projectId,
+                    filename: filename
+                })
+            });
+        
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+        
+            const result = await response.json();
+        
+            if (result.success) {
+                await loadAllDataFromServer();
+                refreshPortfolio();
+                
+                if (document.body.classList.contains('admin-mode')) {
+                    renderAdminGalleryList();
+                }
+                
+                showMessage('Project deleted successfully!', 'success');
+            } else {
+                throw new Error(result.message || 'Delete failed');
+            }
+        
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            showMessage('Error deleting project: ' + error.message, 'error');
+        }
+    }
+
+    // ========== WEBSITE FUNCTIONALITY ==========
+    function initializePortfolio() {
+        const portfolioContainer = document.getElementById('portfolio-container');
+        if (!portfolioContainer) return;
+    
+        portfolioContainer.innerHTML = '';
+    
+        allGalleryImages = [...userProjects];
+    
+        allGalleryImages.forEach((project, index) => {
+            const portfolioItem = document.createElement('div');
+            portfolioItem.className = 'portfolio-item';
+            portfolioItem.style.backgroundImage = `url('${project.image}')`;
+            portfolioItem.style.cursor = 'pointer';
+            portfolioItem.dataset.index = index;
+            
+            portfolioItem.addEventListener('click', () => {
+                openLightbox(index);
+            });
+            
+            portfolioContainer.appendChild(portfolioItem);
+        });
+        
+        updateLightboxImages();
+    }
+
+    function refreshPortfolio() {
+        initializePortfolio();
+        updateLightboxImages();
+    }
+
+    function updateLightboxImages() {
+        allGalleryImages = [...userProjects];
+    }
+
+    // Testimonial Slider
+    let currentTestimonial = 0;
+
+    function initializeTestimonialSlider() {
+        const track = document.getElementById('testimonial-track');
+        const dotsContainer = document.getElementById('testimonial-dots');
+    
+        if (!track || !dotsContainer) return;
+    
+        // Use server testimonials or default
+        const testimonials = testimonialsData.length > 0 ? testimonialsData : defaultTestimonials;
+    
+        testimonials.forEach((testimonial, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'testimonial-slide';
+        
+            slide.innerHTML = `
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar" style="background-image: url('${testimonial.avatar}');"></div>
+                        <div class="testimonial-info">
+                            <h4>${testimonial.name}</h4>
+                            <div class="testimonial-rating">${testimonial.rating}</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">${testimonial.text}</p>
+                </div>
+            `;
+        
+            track.appendChild(slide);
+        
+            const dot = document.createElement('div');
+            dot.className = 'testimonial-dot';
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToTestimonial(index));
+            dotsContainer.appendChild(dot);
+        });
+    
+        const prevBtn = document.getElementById('prev-testimonial');
+        const nextBtn = document.getElementById('next-testimonial');
+    
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                goToTestimonial(currentTestimonial - 1);
+            });
+        }
+    
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                goToTestimonial(currentTestimonial + 1);
+            });
+        }
+    
+        setInterval(() => {
+            goToTestimonial(currentTestimonial + 1);
+        }, 5000);
+    }
+
+    function goToTestimonial(index) {
+        const track = document.getElementById('testimonial-track');
+        const dots = document.querySelectorAll('.testimonial-dot');
+        const testimonials = testimonialsData.length > 0 ? testimonialsData : defaultTestimonials;
+        const totalTestimonials = testimonials.length;
+    
+        if (!track || dots.length === 0) return;
+    
+        if (index >= totalTestimonials) {
+            index = 0;
+        } else if (index < 0) {
+            index = totalTestimonials - 1;
+        }
+    
+        currentTestimonial = index;
+        track.style.transform = `translateX(-${currentTestimonial * 100}%)`;
+    
+        dots.forEach((dot, i) => {
+            if (i === currentTestimonial) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    // ========== ADMIN PORTAL FUNCTIONALITY ==========
+    const floatingAdminBtn = document.getElementById('floatingAdminBtn');
+
+    if (floatingAdminBtn) {
+        floatingAdminBtn.addEventListener('click', function() {
+            if (document.body.classList.contains('admin-mode')) {
+                switchToMainMode();
+            } else {
+                switchToAdminMode();
+            }
+        });
+    }
+
+    // Mode switching functions
+    function switchToMainMode() {
+        modeToggleBtns.forEach(b => b.classList.remove('active'));
+        document.querySelector('.mode-toggle-btn[data-mode="main"]').classList.add('active');
+        document.body.className = 'main-mode';
+        if (floatingAdminBtn) floatingAdminBtn.classList.remove('admin-active');
+    }
+
+    function switchToAdminMode() {
+        modeToggleBtns.forEach(b => b.classList.remove('active'));
+        document.querySelector('.mode-toggle-btn[data-mode="admin"]').classList.add('active');
+        document.body.className = 'admin-mode';
+        if (floatingAdminBtn) floatingAdminBtn.classList.add('admin-active');
+        checkLoginStatus();
+    }
+
     const modeToggleBtns = document.querySelectorAll('.mode-toggle-btn');
     const switchToMainBtn = document.querySelector('.switch-to-main');
-   
+
     modeToggleBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const mode = this.dataset.mode;
-           
             modeToggleBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-           
             document.body.className = `${mode}-mode`;
-           
-            // Update floating button state
+            
             if (floatingAdminBtn) {
                 if (mode === 'admin') {
                     floatingAdminBtn.classList.add('admin-active');
                     checkLoginStatus();
+                    
+                    setTimeout(async () => {
+                        await loadAllDataFromServer();
+                        renderAdminGalleryList();
+                    }, 100);
                 } else {
                     floatingAdminBtn.classList.remove('admin-active');
                 }
             }
         });
     });
-   
+
     if (switchToMainBtn) {
         switchToMainBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            modeToggleBtns.forEach(b => b.classList.remove('active'));
-            document.querySelector('.mode-toggle-btn[data-mode="main"]').classList.add('active');
-            document.body.className = 'main-mode';
-           
-            // Update floating button state
-            if (floatingAdminBtn) {
-                floatingAdminBtn.classList.remove('admin-active');
-            }
+            switchToMainMode();
         });
     }
-   
-    // Main website functionality
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mainNav = document.getElementById('mainNav');
-   
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mainNav.classList.toggle('active');
-            mobileMenuBtn.innerHTML = mainNav.classList.contains('active')
-                ? '<i class="fas fa-times"></i>'
-                : '<i class="fas fa-bars"></i>';
-        });
-       
-        // Close mobile menu when clicking on a link
-        const navLinks = document.querySelectorAll('.main-nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mainNav.classList.remove('active');
-                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-            });
-        });
-    }
-   
-    // Header scroll effect
-    window.addEventListener('scroll', () => {
-        const header = document.querySelector('header');
-        if (header && window.scrollY > 100) {
-            header.style.backgroundColor = 'rgba(255, 255, 255, 0.98)';
-            header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.08)';
-        } else if (header) {
-            header.style.backgroundColor = 'rgba(255, 255, 255, 0.97)';
-            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
-        }
-    });
-   
-    // Hero Slider
-    const heroSlides = document.querySelectorAll('.hero-slide');
-    const sliderDots = document.querySelectorAll('.slider-dot');
-    let currentSlide = 0;
-   
-    function showSlide(index) {
-        if (heroSlides.length > 0) {
-            heroSlides.forEach(slide => slide.classList.remove('active'));
-            sliderDots.forEach(dot => dot.classList.remove('active'));
-           
-            heroSlides[index].classList.add('active');
-            sliderDots[index].classList.add('active');
-            currentSlide = index;
-        }
-    }
-   
-    sliderDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            showSlide(index);
-        });
-    });
-   
-    // Auto slide
-    if (heroSlides.length > 0) {
-        setInterval(() => {
-            let nextSlide = (currentSlide + 1) % heroSlides.length;
-            showSlide(nextSlide);
-        }, 6000);
-    }
-   
-    // Load gallery images from localStorage AND server
-    function loadGalleryImages() {
-        // First load from localStorage for fallback
-        const savedImages = localStorage.getItem('newHorizonGallery');
-        if (savedImages) {
-            try {
-                galleryImages = JSON.parse(savedImages);
-                // Filter out any invalid images
-                galleryImages = galleryImages.filter(img => img && (img.src || img.fileName || img.dataUrl) && img.title);
-            } catch (error) {
-                console.error('Error parsing gallery data:', error);
-                loadDefaultGallery();
-            }
-        } else {
-            loadDefaultGallery();
-        }
-        
-        // Then try to load from server
-        fetch('get_gallery.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Server not available');
-                }
-                return response.json();
-            })
-            .then(serverImages => {
-                if (serverImages && serverImages.length > 0) {
-                    // Merge server images with local images
-                    const serverImageIds = new Set(serverImages.map(img => img.id));
-                    
-                    // Add local images that aren't on server
-                    galleryImages.forEach(localImage => {
-                        if (!serverImageIds.has(localImage.id)) {
-                            serverImages.push(localImage);
-                        }
-                    });
-                    
-                    galleryImages = serverImages;
-                    saveGalleryImages();
-                }
-            })
-            .catch(error => {
-                console.log('Could not load from server, using local data:', error.message);
-            })
-            .finally(() => {
-                renderWebsiteGallery('all');
-            });
-    }
-   
-    function loadDefaultGallery() {
-        galleryImages = [
-            {
-                id: Date.now() + 1,
-                src: './img/small-garden.jpg',
-                title: 'Modern Garden Design',
-                category: 'gardens',
-                description: 'Contemporary residential garden with clean lines'
-            },
-            {
-                id: Date.now() + 2,
-                src: './img/landscaping.jpg',
-                title: 'Professional Landscaping',
-                category: 'hardscaping',
-                description: 'Expert hardscape installation'
-            },
-            {
-                id: Date.now() + 3,
-                src: './img/flagstone-patio.jpg',
-                title: 'Stone Patio',
-                category: 'hardscaping',
-                description: 'Natural stone patio with seating area'
-            },
-            {
-                id: Date.now() + 4,
-                src: './img/water-saving-irrigation.jpg',
-                title: 'Irrigation System',
-                category: 'irrigation',
-                description: 'Professional irrigation installation'
-            },
-            {
-                id: Date.now() + 5,
-                src: './img/Sustainable Landscape Design.jpg',
-                title: 'Garden Maintenance',
-                category: 'gardens',
-                description: 'Regular garden care and upkeep'
-            },
-            {
-                id: Date.now() + 6,
-                src: './img/DBI-Bb-feature.jpg',
-                title: 'Water Feature',
-                category: 'hardscaping',
-                description: 'Custom water feature installation'
-            }
-        ];
-        saveGalleryImages();
-    }
-   
-    function saveGalleryImages() {
-        try {
-            if (galleryImages.length > 50) {
-                galleryImages = galleryImages.slice(0, 50);
-            }
-           
-            localStorage.setItem('newHorizonGallery', JSON.stringify(galleryImages));
-        } catch (error) {
-            console.error('Save error:', error);
-        }
-    }
-   
-    // Render website gallery
-    function renderWebsiteGallery(filter) {
-        const galleryGrid = document.getElementById('websiteGalleryGrid');
-        if (!galleryGrid) return;
-       
-        galleryGrid.innerHTML = '';
-       
-        const filteredImages = filter === 'all'
-            ? galleryImages
-            : galleryImages.filter(img => img.category === filter);
-       
-        if (filteredImages.length === 0) {
-            galleryGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-medium);">No images found for this category.</div>';
-            return;
-        }
-       
-        filteredImages.forEach((image, index) => {
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'website-gallery-item';
-            galleryItem.dataset.category = image.category;
-            galleryItem.dataset.index = index;
-           
-            const imgElement = document.createElement('img');
-            // Use server path if available, otherwise use stored src or dataUrl
-            if (image.fileName) {
-                imgElement.src = 'img/' + image.fileName;
-            } else if (image.src) {
-                imgElement.src = image.src;
-            } else if (image.dataUrl) {
-                imgElement.src = image.dataUrl;
-            } else {
-                imgElement.src = 'https://via.placeholder.com/300x200/1B5E20/FFFFFF?text=Image+Preview';
-            }
-            imgElement.alt = image.title || 'Gallery image';
-           
-            imgElement.onerror = function() {
-                this.src = 'https://via.placeholder.com/300x200/1B5E20/FFFFFF?text=Image+Preview';
-            };
-           
-            const captionDiv = document.createElement('div');
-            captionDiv.className = 'gallery-caption';
-            captionDiv.innerHTML = `
-                <h4>${image.title || 'Untitled'}</h4>
-                <p>${image.description || 'No description available'}</p>
-            `;
-           
-            galleryItem.appendChild(imgElement);
-            galleryItem.appendChild(captionDiv);
-            galleryItem.addEventListener('click', () => openLightbox(index, filteredImages));
-            galleryGrid.appendChild(galleryItem);
-        });
-    }
-   
-    // Gallery filter for website
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            renderWebsiteGallery(this.dataset.filter);
-        });
-    });
-   
-    // Lightbox functionality
-    const lightboxModal = document.getElementById('lightboxModal');
-    const lightboxImage = document.getElementById('lightboxImage');
-    const lightboxClose = document.getElementById('lightboxClose');
-    const lightboxPrev = document.getElementById('lightboxPrev');
-    const lightboxNext = document.getElementById('lightboxNext');
-   
-    let currentLightboxImages = [];
-    let lightboxIndex = 0;
-   
-    function openLightbox(index, images) {
-        currentLightboxImages = images;
-        lightboxIndex = index;
-        updateLightbox();
-        lightboxModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-   
-    function updateLightbox() {
-        if (currentLightboxImages[lightboxIndex]) {
-            const image = currentLightboxImages[lightboxIndex];
-            if (image.fileName) {
-                lightboxImage.src = 'img/' + image.fileName;
-            } else if (image.src) {
-                lightboxImage.src = image.src;
-            } else if (image.dataUrl) {
-                lightboxImage.src = image.dataUrl;
-            }
-            lightboxImage.alt = image.title;
-        }
-    }
-   
-    function closeLightbox() {
-        lightboxModal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-   
-    if (lightboxClose) {
-        lightboxClose.addEventListener('click', closeLightbox);
-    }
-   
-    if (lightboxModal) {
-        lightboxModal.addEventListener('click', (e) => {
-            if (e.target === lightboxModal) closeLightbox();
-        });
-    }
-   
-    if (lightboxPrev) {
-        lightboxPrev.addEventListener('click', () => {
-            lightboxIndex = (lightboxIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
-            updateLightbox();
-        });
-    }
-   
-    if (lightboxNext) {
-        lightboxNext.addEventListener('click', () => {
-            lightboxIndex = (lightboxIndex + 1) % currentLightboxImages.length;
-            updateLightbox();
-        });
-    }
-   
-    // Keyboard navigation for lightbox
-    document.addEventListener('keydown', (e) => {
-        if (!lightboxModal || !lightboxModal.classList.contains('active')) return;
-       
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') lightboxPrev.click();
-        if (e.key === 'ArrowRight') lightboxNext.click();
-    });
-   
-    // Contact Form Handling - NOW LINKED TO sendmail.php
-    const contactForm = document.getElementById('contactForm');
-    const formSuccess = document.getElementById('formSuccess');
-    const formError = document.getElementById('formError');
-    const errorMessage = document.getElementById('errorMessage');
-    const formLoading = document.getElementById('formLoading');
-   
-    if (contactForm) {
-        contactForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-           
-            // Hide any previous messages
-            formSuccess.classList.remove('active');
-            formError.classList.remove('active');
-            formLoading.classList.add('active');
-           
-            // Get form values
-            const formData = new FormData(this);
-           
-            // Add honeypot check
-            const websiteField = formData.get('website');
-            if (websiteField) {
-                // This is likely a bot - don't process the form
-                formLoading.classList.remove('active');
-                return;
-            }
-           
-            try {
-                // Send form data to sendmail.php
-                const response = await fetch('sendmail.php', {
-                    method: 'POST',
-                    body: formData
-                });
-               
-                const result = await response.text();
-               
-                formLoading.classList.remove('active');
-               
-                if (response.ok && result.includes('success')) {
-                    // Show success message
-                    formSuccess.classList.add('active');
-                    contactForm.reset();
-                    formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                   
-                    // Hide success message after 5 seconds
-                    setTimeout(() => {
-                        formSuccess.classList.remove('active');
-                    }, 5000);
-                } else {
-                    // Show error message
-                    errorMessage.textContent = result || 'There was an error sending your message. Please try again.';
-                    formError.classList.add('active');
-                }
-            } catch (error) {
-                formLoading.classList.remove('active');
-                errorMessage.textContent = 'Network error. Please check your connection and try again.';
-                formError.classList.add('active');
-                console.error('Form submission error:', error);
-            }
-        });
-    }
-   
-    // ================= ADMIN FUNCTIONALITY =================
-    const loginSection = document.getElementById('loginSection');
-    const adminDashboard = document.getElementById('adminDashboard');
-    const adminPasswordInput = document.getElementById('adminPassword');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const messageContainer = document.getElementById('messageContainer');
-    const fileUploadContainer = document.getElementById('fileUploadContainer');
-    const browseBtn = document.getElementById('browseBtn');
-    const imageFileInput = document.getElementById('imageFile');
-    const selectedFile = document.getElementById('selectedFile');
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
-    const imagePreview = document.getElementById('imagePreview');
-    const previewImage = document.getElementById('previewImage');
-    const imageTitleInput = document.getElementById('imageTitle');
-    const imageDescriptionInput = document.getElementById('imageDescription');
-    const imageCategoryInput = document.getElementById('imageCategory');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const resetGalleryBtn = document.getElementById('resetGalleryBtn');
-    const exportGalleryBtn = document.getElementById('exportGalleryBtn');
-    const importGalleryBtn = document.getElementById('importGalleryBtn');
-    const importFileInput = document.getElementById('importFile');
-    const adminGalleryList = document.getElementById('galleryList');
-    const galleryCount = document.getElementById('galleryCount');
-   
-    let selectedImageFile = null;
-   
-    // Check if user is already logged in
+
+    // Check login status
     function checkLoginStatus() {
         const isLoggedIn = localStorage.getItem('newHorizonAdminLoggedIn') === 'true';
         if (isLoggedIn) {
             showAdminDashboard();
+        } else {
+            showLoginForm();
         }
     }
-   
-    // Show message
-    function showMessage(text, type) {
+
+    // Show login form function
+    function showLoginForm() {
+        const loginSection = document.getElementById('loginSection');
+        const adminDashboard = document.getElementById('adminDashboard');
+    
+        if (loginSection) {
+            loginSection.style.display = 'block';
+            const adminPasswordInput = document.getElementById('adminPassword');
+            if (adminPasswordInput) adminPasswordInput.value = '';
+        }
+        if (adminDashboard) adminDashboard.style.display = 'none';
+    }
+
+    // Show admin dashboard
+    function showAdminDashboard() {
+        const loginSection = document.getElementById('loginSection');
+        const adminDashboard = document.getElementById('adminDashboard');
+    
+        if (loginSection) loginSection.style.display = 'none';
+        if (adminDashboard) {
+            adminDashboard.style.display = 'block';
+            renderAdminGalleryList();
+            loadStatisticsForm();
+        }
+    }
+
+    // Message function
+    function showMessage(text, type, containerId = 'messageContainer') {
+        const messageContainer = document.getElementById(containerId);
         if (messageContainer) {
             messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
-           
+        
             setTimeout(() => {
                 messageContainer.innerHTML = '';
             }, 5000);
         }
     }
-   
-    // Login function
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            const password = adminPasswordInput.value;
-           
-            if (password === ADMIN_PASSWORD) {
-                localStorage.setItem('newHorizonAdminLoggedIn', 'true');
-                showAdminDashboard();
-                showMessage('Login successful!', 'success');
-            } else {
-                showMessage('Incorrect password. Please try again.', 'error');
-            }
-        });
-    }
-   
-    // Logout function
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('newHorizonAdminLoggedIn');
-            if (adminDashboard) adminDashboard.style.display = 'none';
-            if (loginSection) loginSection.style.display = 'block';
-            if (adminPasswordInput) adminPasswordInput.value = '';
-        });
-    }
-   
-    // Show admin dashboard
-    function showAdminDashboard() {
-        if (loginSection) loginSection.style.display = 'none';
-        if (adminDashboard) adminDashboard.style.display = 'block';
-        loadAdminGalleryImages();
-    }
-   
-    // Format file size
+
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -2771,430 +2813,484 @@ footer {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
-   
-    // Handle file selection for admin
-    if (browseBtn) {
-        browseBtn.addEventListener('click', () => {
-            if (imageFileInput) imageFileInput.click();
+
+    // Login function with ENTER key support
+    function initializeLogin() {
+        const loginBtn = document.getElementById('loginBtn');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        
+        const performLogin = () => {
+            if (!adminPasswordInput) return;
+            
+            const password = adminPasswordInput.value.trim();
+            
+            if (password === ADMIN_PASSWORD) {
+                localStorage.setItem('newHorizonAdminLoggedIn', 'true');
+                showAdminDashboard();
+                showMessage('Login successful!', 'success');
+            } else {
+                showMessage('Incorrect password. Please try again.', 'error');
+                adminPasswordInput.value = '';
+                adminPasswordInput.focus();
+            }
+        };
+        
+        if (loginBtn) {
+            loginBtn.addEventListener('click', performLogin);
+        }
+        
+        if (adminPasswordInput) {
+            adminPasswordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performLogin();
+                }
+            });
+        }
+    }
+
+    // Logout function
+    function initializeLogout() {
+        const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+        if (logoutAdminBtn) {
+            logoutAdminBtn.addEventListener('click', () => {
+                localStorage.removeItem('newHorizonAdminLoggedIn');
+                showLoginForm();
+                showMessage('Logged out successfully!', 'success');
+            });
+        }
+    }
+
+    // Render admin gallery list
+    function renderAdminGalleryList() {
+        const adminGalleryList = document.getElementById('galleryList');
+        if (!adminGalleryList) return;
+    
+        adminGalleryList.innerHTML = '';
+    
+        const totalProjects = userProjects.length;
+    
+        const galleryCount = document.getElementById('galleryCount');
+        if (galleryCount) {
+            galleryCount.textContent = `Total: ${totalProjects} projects`;
+            galleryCount.className = 'message info';
+        }
+    
+        if (totalProjects === 0) {
+            adminGalleryList.innerHTML = '<div class="message info">No projects to display. Add your first project!</div>';
+            return;
+        }
+    
+        // Display user projects
+        userProjects.forEach((project, index) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.innerHTML = `
+                <img src="${project.image}" alt="${project.title}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+                <div class="gallery-item-info">
+                    <h4>${project.title}</h4>
+                    <p>${project.description || 'No description'}</p>
+                    <div class="category-badge">${project.category || 'Uncategorized'}</div>
+                    <div class="gallery-item-actions" style="margin-top: 10px;">
+                        <button class="btn delete-btn" data-id="${project.id}" data-filename="${project.filename || ''}" style="background-color: #f44336;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            adminGalleryList.appendChild(galleryItem);
+        });
+    
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const filename = this.dataset.filename;
+                deleteProject(id, filename);
+            });
         });
     }
-   
-    if (imageFileInput) {
+
+    // Load statistics form
+    function loadStatisticsForm() {
+        const statsProjects = document.getElementById('statsProjects');
+        const statsClients = document.getElementById('statsClients');
+        const statsExperience = document.getElementById('statsExperience');
+    
+        if (statsProjects) statsProjects.value = statistics.projects;
+        if (statsClients) statsClients.value = statistics.clients;
+        if (statsExperience) statsExperience.value = statistics.experience;
+    }
+
+    // Update statistics
+    const updateStatsBtn = document.getElementById('updateStatsBtn');
+    if (updateStatsBtn) {
+        updateStatsBtn.addEventListener('click', async () => {
+            const statsProjects = document.getElementById('statsProjects');
+            const statsClients = document.getElementById('statsClients');
+            const statsExperience = document.getElementById('statsExperience');
+        
+            if (!statsProjects || !statsClients || !statsExperience) return;
+        
+            const newStats = {
+                projects: parseInt(statsProjects.value) || 0,
+                clients: parseInt(statsClients.value) || 0,
+                experience: parseInt(statsExperience.value) || 0
+            };
+        
+            try {
+                const response = await fetch('update_statistics.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newStats)
+                });
+            
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        statistics = newStats;
+                        updateCounters();
+                        saveToLocalStorage();
+                        showMessage('Statistics updated successfully!', 'success');
+                    } else {
+                        showMessage('Failed to update statistics', 'error');
+                    }
+                } else {
+                    showMessage('Failed to connect to server', 'error');
+                }
+            } catch (error) {
+                showMessage('Error updating statistics: ' + error.message, 'error');
+            }
+        });
+    }
+
+    // File upload handling
+    let selectedImageFile = null;
+
+    const browseBtn = document.getElementById('browseBtn');
+    const imageFileInput = document.getElementById('imageFile');
+
+    if (browseBtn && imageFileInput) {
+        browseBtn.addEventListener('click', () => {
+            imageFileInput.click();
+        });
+    
         imageFileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 handleFileSelect(e.target.files[0]);
             }
         });
     }
-   
-    // Handle drag and drop for admin
+
+    const fileUploadContainer = document.getElementById('fileUploadContainer');
     if (fileUploadContainer) {
         fileUploadContainer.addEventListener('dragover', (e) => {
             e.preventDefault();
             fileUploadContainer.classList.add('drag-over');
         });
-       
+    
         fileUploadContainer.addEventListener('dragleave', () => {
             fileUploadContainer.classList.remove('drag-over');
         });
-       
+    
         fileUploadContainer.addEventListener('drop', (e) => {
             e.preventDefault();
             fileUploadContainer.classList.remove('drag-over');
-           
+        
             if (e.dataTransfer.files.length > 0) {
                 handleFileSelect(e.dataTransfer.files[0]);
             }
         });
     }
-   
-    // Handle file selection for admin
+
     function handleFileSelect(file) {
         if (!file.type.match('image.*')) {
-            showMessage('Please select an image file (JPEG, PNG, etc.)', 'error');
+            showMessage('Please select an image file (JPEG, PNG, etc.)', 'error', 'projectMessageContainer');
             return;
         }
-       
+    
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-            showMessage('Image size should be less than 5MB', 'error');
+            showMessage('Image size should be less than 5MB', 'error', 'projectMessageContainer');
             return;
         }
-       
+    
         selectedImageFile = file;
-       
+    
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const selectedFile = document.getElementById('selectedFile');
+    
         if (fileName) fileName.textContent = file.name;
         if (fileSize) fileSize.textContent = formatFileSize(file.size);
         if (selectedFile) selectedFile.classList.add('active');
-       
+    
         const reader = new FileReader();
         reader.onload = function(e) {
+            const previewImage = document.getElementById('previewImage');
+            const imagePreview = document.getElementById('imagePreview');
             if (previewImage) previewImage.src = e.target.result;
             if (imagePreview) imagePreview.classList.add('active');
         };
         reader.readAsDataURL(file);
-       
+    
         checkFormValidity();
-        showMessage('Image selected successfully!', 'success');
+        showMessage('Image selected successfully!', 'success', 'projectMessageContainer');
     }
-   
-    // Check if form is valid
+
     function checkFormValidity() {
-        const isTitleValid = imageTitleInput && imageTitleInput.value.trim().length > 0;
-        const isCategoryValid = imageCategoryInput && imageCategoryInput.value.trim().length > 0;
+        const projectTitle = document.getElementById('projectTitle');
+        const projectCategory = document.getElementById('projectCategory');
+        const uploadProjectBtn = document.getElementById('uploadProjectBtn');
+    
+        const isTitleValid = projectTitle && projectTitle.value.trim().length > 0;
+        const isCategoryValid = projectCategory && projectCategory.value.trim().length > 0;
         const hasImage = selectedImageFile !== null;
-       
-        if (uploadBtn) {
-            uploadBtn.disabled = !(isTitleValid && isCategoryValid && hasImage);
+    
+        if (uploadProjectBtn) {
+            uploadProjectBtn.disabled = !(isTitleValid && isCategoryValid && hasImage);
         }
     }
-   
-    // Listen for form input changes
-    if (imageTitleInput) {
-        imageTitleInput.addEventListener('input', checkFormValidity);
+
+    const projectTitleInput = document.getElementById('projectTitle');
+    const projectCategoryInput = document.getElementById('projectCategory');
+    const projectDescriptionInput = document.getElementById('projectDescription');
+
+    if (projectTitleInput) {
+        projectTitleInput.addEventListener('input', checkFormValidity);
     }
-   
-    if (imageCategoryInput) {
-        imageCategoryInput.addEventListener('change', checkFormValidity);
+
+    if (projectCategoryInput) {
+        projectCategoryInput.addEventListener('change', checkFormValidity);
     }
-   
-    // Load admin gallery images
-    function loadAdminGalleryImages() {
-        if (galleryCount) {
-            galleryCount.textContent = `You have ${galleryImages.length} image${galleryImages.length !== 1 ? 's' : ''} in your gallery.`;
-            galleryCount.className = 'message info';
-        }
-        renderAdminGalleryList();
+
+    if (projectDescriptionInput) {
+        projectDescriptionInput.addEventListener('input', checkFormValidity);
     }
-   
-    // Render admin gallery list
-    function renderAdminGalleryList() {
-        if (!adminGalleryList) return;
-       
-        adminGalleryList.innerHTML = '';
-       
-        if (galleryImages.length === 0) {
-            adminGalleryList.innerHTML = '<div class="message info">No images in gallery yet. Upload some images to get started!</div>';
-            return;
-        }
-       
-        galleryImages.forEach((image, index) => {
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
-           
-            // Use server path if available, otherwise use stored src or dataUrl
-            const imageSrc = image.fileName ? 'img/' + image.fileName : 
-                            (image.src ? image.src : 
-                            (image.dataUrl ? image.dataUrl : 'https://via.placeholder.com/300x200?text=Image+Not+Found'));
-           
-            galleryItem.innerHTML = `
-                <img src="${imageSrc}" alt="${image.title}" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
-                <div class="gallery-item-info">
-                    <h4>${image.title}</h4>
-                    <p>${image.description || 'No description'}</p>
-                    <div class="category-badge">${image.category}</div>
-                    <div class="gallery-item-actions">
-                        <button class="btn btn-red delete-btn" data-index="${index}" data-id="${image.id || ''}" data-filename="${image.fileName || ''}">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-           
-            adminGalleryList.appendChild(galleryItem);
-        });
-       
-        // Add event listeners to delete buttons
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const index = parseInt(this.dataset.index);
-                const imageId = this.dataset.id;
-                const fileName = this.dataset.filename;
-                deleteImage(index, imageId, fileName);
-            });
-        });
-    }
-   
-    // Delete image from gallery
-    function deleteImage(index, imageId, fileName) {
-        if (confirm('Are you sure you want to delete this image?')) {
-            const imageToDelete = galleryImages[index];
+
+    const uploadProjectBtn = document.getElementById('uploadProjectBtn');
+    if (uploadProjectBtn) {
+        uploadProjectBtn.addEventListener('click', async () => {
+            if (!selectedImageFile) {
+                showMessage('Please select an image first', 'error', 'projectMessageContainer');
+                return;
+            }
+        
+            const title = projectTitleInput ? projectTitleInput.value.trim() : '';
+            const description = projectDescriptionInput ? projectDescriptionInput.value.trim() : '';
+            const category = projectCategoryInput ? projectCategoryInput.value : '';
+        
+            if (!title) {
+                showMessage('Please enter a project title', 'error', 'projectMessageContainer');
+                return;
+            }
+
+            if (!category) {
+                showMessage('Please select a category', 'error', 'projectMessageContainer');
+                return;
+            }
+        
+            const originalText = uploadProjectBtn.innerHTML;
+            uploadProjectBtn.innerHTML = '<span class="spinner"></span> Uploading...';
+            uploadProjectBtn.disabled = true;
+        
+            try {
+                const result = await addProject(title, description, category, selectedImageFile);
             
-            // Try to delete from server first if we have a server image
-            if (imageId && fileName) {
-                fetch('delete_image.php', {
+                if (result.success) {
+                    showMessage(result.message, 'success', 'projectMessageContainer');
+                } else {
+                    showMessage(result.message || 'Failed to add project', 'error', 'projectMessageContainer');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showMessage('Error uploading project: ' + error.message, 'error', 'projectMessageContainer');
+            }
+        
+            uploadProjectBtn.innerHTML = originalText;
+            uploadProjectBtn.disabled = false;
+        });
+    }
+
+    function resetAdminForm() {
+        if (projectTitleInput) projectTitleInput.value = '';
+        if (projectDescriptionInput) projectDescriptionInput.value = '';
+        if (projectCategoryInput) projectCategoryInput.value = '';
+        selectedImageFile = null;
+        const selectedFile = document.getElementById('selectedFile');
+        if (selectedFile) selectedFile.classList.remove('active');
+        const imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) imagePreview.classList.remove('active');
+        const previewImage = document.getElementById('previewImage');
+        if (previewImage) previewImage.src = '';
+        if (imageFileInput) imageFileInput.value = '';
+    }
+
+    // ========== CONTACT FORM ==========
+    const quoteForm = document.getElementById('quote-form');
+    if (quoteForm) {
+        quoteForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner"></span> Sending...';
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData);
+                
+                const response = await fetch('sendmail.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
-                        id: imageId,
-                        fileName: fileName 
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        galleryImages.splice(index, 1);
-                        saveGalleryImages();
-                        loadAdminGalleryImages();
-                        renderWebsiteGallery('all');
-                        showMessage('Image deleted successfully from server!', 'success');
-                    } else {
-                        // Server delete failed, try local delete
-                        console.error('Server delete failed:', data.message);
-                        deleteLocalImage(index);
-                    }
-                })
-                .catch(error => {
-                    console.error('Delete error:', error);
-                    // Server unavailable, delete locally
-                    deleteLocalImage(index);
+                    body: JSON.stringify(data)
                 });
-            } else {
-                // Local image only
-                deleteLocalImage(index);
-            }
-        }
-    }
-    
-    // Helper function to delete image locally
-    function deleteLocalImage(index) {
-        galleryImages.splice(index, 1);
-        saveGalleryImages();
-        loadAdminGalleryImages();
-        renderWebsiteGallery('all');
-        showMessage('Image deleted successfully!', 'success');
-    }
-   
-    // Upload new image - Hybrid approach (PHP server + localStorage fallback)
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => {
-            if (!selectedImageFile) {
-                showMessage('Please select an image first', 'error');
-                return;
-            }
-           
-            const title = imageTitleInput.value.trim();
-            const description = imageDescriptionInput.value.trim();
-            const category = imageCategoryInput.value;
-           
-            if (!title) {
-                showMessage('Please enter an image title', 'error');
-                return;
-            }
-           
-            if (!category) {
-                showMessage('Please select a category', 'error');
-                return;
-            }
-           
-            const originalText = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<span class="spinner"></span> Uploading...';
-            uploadBtn.disabled = true;
-           
-            // Try PHP upload first
-            const formData = new FormData();
-            formData.append('image', selectedImageFile);
-            formData.append('title', title);
-            formData.append('description', description);
-            formData.append('category', category);
-           
-            fetch('upload_image.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Server error');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // PHP upload successful
-                    const newImage = {
-                        id: data.id,
-                        fileName: data.fileName,
-                        title: title,
-                        description: description,
-                        category: category,
-                        uploaded: new Date().toISOString()
-                    };
-                   
-                    galleryImages.push(newImage);
-                    saveGalleryImages();
-                    loadAdminGalleryImages();
-                    renderWebsiteGallery('all');
-                   
-                    // Reset form
-                    resetAdminForm();
-                   
-                    uploadBtn.innerHTML = originalText;
-                    checkFormValidity();
-                   
-                    showMessage('Image uploaded successfully to server!', 'success');
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Thank you! Your quote request has been sent successfully. We will contact you soon.', 'success');
+                    this.reset();
                 } else {
-                    // PHP upload failed, fall back to localStorage
-                    throw new Error(data.message || 'PHP upload failed');
+                    showMessage('Sorry, there was an error sending your request. Please try again or call us directly.', 'error');
                 }
-            })
-            .catch(error => {
-                // Fall back to localStorage
-                console.log('PHP upload failed, using localStorage fallback:', error.message);
-               
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const newImage = {
-                        id: Date.now(),
-                        dataUrl: e.target.result,
-                        title: title,
-                        description: description,
-                        category: category,
-                        uploaded: new Date().toISOString()
-                    };
-                   
-                    galleryImages.push(newImage);
-                    saveGalleryImages();
-                    loadAdminGalleryImages();
-                    renderWebsiteGallery('all');
-                   
-                    // Reset form
-                    resetAdminForm();
-                   
-                    uploadBtn.innerHTML = originalText;
-                    checkFormValidity();
-                   
-                    showMessage('Image saved locally (PHP server unavailable)', 'warning');
-                };
-               
-                reader.readAsDataURL(selectedImageFile);
+            } catch (error) {
+                console.error('Contact form error:', error);
+                showMessage('Network error. Please try again or call us directly.', 'error');
+            }
+            
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    }
+
+    // ========== MOBILE NAVIGATION ==========
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const nav = document.querySelector('nav');
+    
+    if (mobileMenu && nav) {
+        mobileMenu.addEventListener('click', () => {
+            nav.classList.toggle('active');
+        });
+        
+        const navLinks = nav.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                nav.classList.remove('active');
             });
         });
     }
-   
-    // Reset admin form
-    function resetAdminForm() {
-        if (imageTitleInput) imageTitleInput.value = '';
-        if (imageDescriptionInput) imageDescriptionInput.value = '';
-        if (imageCategoryInput) imageCategoryInput.value = '';
-        selectedImageFile = null;
-        if (selectedFile) selectedFile.classList.remove('active');
-        if (imagePreview) imagePreview.classList.remove('active');
-        if (previewImage) previewImage.src = '';
-        if (imageFileInput) imageFileInput.value = '';
-        checkFormValidity();
-    }
-   
-    // Reset gallery to default
-    if (resetGalleryBtn) {
-        resetGalleryBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset the gallery to default images? This will remove all your uploaded images.')) {
-                loadDefaultGallery();
-                saveGalleryImages();
-                loadAdminGalleryImages();
-                renderWebsiteGallery('all');
-                showMessage('Gallery reset to default images!', 'success');
-            }
-        });
-    }
-   
-    // Export gallery data
-    if (exportGalleryBtn) {
-        exportGalleryBtn.addEventListener('click', () => {
-            const dataStr = JSON.stringify(galleryImages, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-           
-            const exportFileDefaultName = 'new-horizon-gallery-backup.json';
-           
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-           
-            showMessage('Gallery data exported successfully!', 'success');
-        });
-    }
-   
-    // Import gallery data
-    if (importGalleryBtn) {
-        importGalleryBtn.addEventListener('click', () => {
-            if (importFileInput) importFileInput.click();
-        });
-    }
-   
-    if (importFileInput) {
-        importFileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-               
-                if (!file.name.endsWith('.json')) {
-                    showMessage('Please select a JSON file', 'error');
-                    return;
-                }
-               
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const importedData = JSON.parse(e.target.result);
-                       
-                        if (!Array.isArray(importedData)) {
-                            showMessage('Invalid gallery data format', 'error');
-                            return;
-                        }
-                       
-                        const isValid = importedData.every(item =>
-                            (item.src || item.fileName || item.dataUrl) && item.title && item.category
-                        );
-                       
-                        if (!isValid) {
-                            showMessage('Some gallery items are missing required fields', 'error');
-                            return;
-                        }
-                       
-                        if (confirm(`Import ${importedData.length} images? This will replace your current gallery.`)) {
-                            galleryImages = importedData;
-                            saveGalleryImages();
-                            loadAdminGalleryImages();
-                            renderWebsiteGallery('all');
-                            showMessage(`Successfully imported ${importedData.length} images!`, 'success');
-                        }
-                    } catch (error) {
-                        showMessage('Error parsing JSON file: ' + error.message, 'error');
-                    }
-                };
-               
-                reader.readAsText(file);
-                importFileInput.value = '';
-            }
-        });
-    }
-   
-    // Allow Enter key to submit login form
-    if (adminPasswordInput) {
-        adminPasswordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && loginBtn) {
-                loginBtn.click();
-            }
-        });
-    }
-   
-    // Initialize everything on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize all event listeners
-        loadGalleryImages();
-        renderWebsiteGallery('all');
-        checkLoginStatus();
-       
-        // Also initialize admin functionality if we're already in admin mode
-        if (document.body.classList.contains('admin-mode')) {
-            // Re-initialize admin event listeners
-            setTimeout(() => {
-                loadAdminGalleryImages();
-            }, 100);
+
+    // ========== ADD REFRESH BUTTON ==========
+    function addRefreshButton() {
+        // Check if button already exists
+        if (document.getElementById('refreshGalleryBtn')) return;
+        
+        const refreshBtn = document.createElement('button');
+        refreshBtn.id = 'refreshGalleryBtn';
+        refreshBtn.className = 'btn';
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Gallery';
+        refreshBtn.style.marginBottom = '15px';
+        refreshBtn.style.width = '100%';
+        
+        const adminToolsCard = document.querySelector('.admin-card:nth-child(3)');
+        if (adminToolsCard) {
+            adminToolsCard.insertBefore(refreshBtn, adminToolsCard.firstChild);
         }
+        
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.innerHTML = '<span class="spinner"></span> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            try {
+                await loadAllDataFromServer();
+                refreshPortfolio();
+                renderAdminGalleryList();
+                showMessage('Gallery refreshed successfully!', 'success');
+            } catch (error) {
+                showMessage('Error refreshing gallery: ' + error.message, 'error');
+            } finally {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Gallery';
+                refreshBtn.disabled = false;
+            }
+        });
+    }
+
+    // ========== INITIALIZATION ==========
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Initialize core functionality
+        await loadAllDataFromServer();
+        initializePortfolio();
+        initializeTestimonialSlider();
+        initializeLightbox();
+        updateCounters();
+        
+        // Initialize admin functions
+        initializeLogin();
+        initializeLogout();
+        addRefreshButton();
+    
+        // Set up intersection observer for counters animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const projectsCounter = document.getElementById('projects-counter');
+                    const clientsCounter = document.getElementById('clients-counter');
+                    const experienceCounter = document.getElementById('experience-counter');
+                
+                    if (projectsCounter) {
+                        projectsCounter.textContent = '0';
+                        animateCounter(projectsCounter, statistics.projects, 2000);
+                    }
+                
+                    if (clientsCounter) {
+                        clientsCounter.textContent = '0';
+                        animateCounter(clientsCounter, statistics.clients, 2000);
+                    }
+                
+                    if (experienceCounter) {
+                        experienceCounter.textContent = '0';
+                        animateCounter(experienceCounter, statistics.experience, 2000);
+                    }
+                
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+    
+        const achievementsSection = document.querySelector('.achievements');
+        if (achievementsSection) {
+            observer.observe(achievementsSection);
+        }
+    
+        // Check login status if we're already in admin mode
+        if (document.body.classList.contains('admin-mode')) {
+            checkLoginStatus();
+        }
+    
+        // Force cache refresh for portfolio images
+        window.addEventListener('load', function() {
+            const portfolioItems = document.querySelectorAll('.portfolio-item');
+            portfolioItems.forEach(item => {
+                const bgImage = item.style.backgroundImage;
+                if (bgImage) {
+                    const url = bgImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+                    const newUrl = `${url}?t=${new Date().getTime()}`;
+                    item.style.backgroundImage = `url('${newUrl}')`;
+                }
+            });
+        });
+    
+        console.log('New Horizon Landscaping Solutions Website Initialized');
+        console.log('Statistics:', statistics);
+        console.log('Projects:', userProjects.length);
     });
 </script>
 </body>
 </html>
+
 
