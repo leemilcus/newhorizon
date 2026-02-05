@@ -9,7 +9,7 @@ $response = [
 ];
 
 try {
-    $statsFile = 'gallery_data/statistics.json';
+    $statsFile = 'statistics.json';
     
     if (file_exists($statsFile)) {
         $statsData = file_get_contents($statsFile);
@@ -20,7 +20,6 @@ try {
             $response['message'] = 'Statistics loaded successfully';
             $response['statistics'] = $statistics;
         } else {
-            // Default statistics
             $response['statistics'] = [
                 'projects' => 1459,
                 'clients' => 900,
@@ -29,7 +28,6 @@ try {
             $response['success'] = true;
         }
     } else {
-        // Default statistics if file doesn't exist
         $response['statistics'] = [
             'projects' => 1459,
             'clients' => 900,
