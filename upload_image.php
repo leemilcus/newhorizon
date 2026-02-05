@@ -1,81 +1,97 @@
 <?php
-// Allow CORS if needed
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
-// Response array
-$response = array('success' => false, 'message' => '', 'fileName' => '', 'id' => '');
+// Create uploads directory if it doesn't exist
+$uploadsDir = 'uploads/';
+if (!file_exists($uploadsDir)) {
+    mkdir($uploadsDir, 0777, true);
+}
 
-// Check if image was uploaded
-if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    // Get uploaded file info
-    $file = $_FILES['image'];
-    $title = $_POST['title'] ?? '';
-    $description = $_POST['description'] ?? '';
-    $category = $_POST['category'] ?? '';
-    
-    // Validate file type
+// Create gallery_data directory for JSON storage
+$dataDir = 'gallery_data/';
+if (!file_exists($dataDir)) {
+    mkdir($dataDir, 0777, true);
+}
+
+$response = [
+    'success' => false,
+    'message' => 'Unknown error',
+    'project' => null
+];
+
+try {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Invalid request method');
+    }
+
+    // Check if file was uploaded
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('No image file uploaded or upload error');
+    }
+
+    // Validate file
+    $imageFile = $_FILES['image'];
     $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!in_array($file['type'], $allowedTypes)) {
-        $response['message'] = 'Invalid file type. Only JPG, PNG, GIF, and WebP are allowed.';
-        echo json_encode($response);
-        exit;
+    $maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!in_array($imageFile['type'], $allowedTypes)) {
+        throw new Exception('Invalid file type. Only JPG, PNG, GIF, and WebP are allowed.');
     }
-    
-    // Validate file size (5MB max)
-    $maxSize = 5 * 1024 * 1024;
-    if ($file['size'] > $maxSize) {
-        $response['message'] = 'File is too large. Maximum size is 5MB.';
-        echo json_encode($response);
-        exit;
+
+    if ($imageFile['size'] > $maxSize) {
+        throw new Exception('File size exceeds 5MB limit.');
     }
-    
+
+    // Get form data
+    $title = isset($_POST['title']) ? trim($_POST['title']) : 'Untitled Project';
+    $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+
     // Generate unique filename
-    $fileExtension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $uniqueName = uniqid() . '_' . time() . '.' . $fileExtension;
-    $uploadPath = 'img/' . $uniqueName;
-    
-    // Ensure img directory exists
-    if (!is_dir('img')) {
-        mkdir('img', 0755, true);
-    }
-    
+    $fileExtension = pathinfo($imageFile['name'], PATHINFO_EXTENSION);
+    $uniqueFilename = 'user_' . time() . '_' . uniqid() . '.' . strtolower($fileExtension);
+    $uploadPath = $uploadsDir . $uniqueFilename;
+
     // Move uploaded file
-    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-        // Create image data
-        $imageData = [
-            'id' => time(),
-            'fileName' => $uniqueName,
-            'title' => $title,
-            'description' => $description,
-            'category' => $category,
-            'uploaded' => date('Y-m-d H:i:s')
-        ];
-        
-        // Update gallery.json
-        $galleryFile = 'gallery.json';
-        $galleryData = [];
-        
-        if (file_exists($galleryFile)) {
-            $galleryData = json_decode(file_get_contents($galleryFile), true);
-        }
-        
-        if (!is_array($galleryData)) {
-            $galleryData = [];
-        }
-        
-        $galleryData[] = $imageData;
-        file_put_contents($galleryFile, json_encode($galleryData, JSON_PRETTY_PRINT));
-        
-        $response['success'] = true;
-        $response['message'] = 'Image uploaded successfully!';
-        $response['fileName'] = $uniqueName;
-        $response['id'] = $imageData['id'];
-    } else {
-        $response['message'] = 'Failed to save file.';
+    if (!move_uploaded_file($imageFile['tmp_name'], $uploadPath)) {
+        throw new Exception('Failed to save uploaded file.');
     }
-} else {
-    $response['message'] = 'No file uploaded or upload error.';
+
+    // Create project data
+    $projectId = 'user_' . uniqid();
+    $project = [
+        'id' => $projectId,
+        'title' => $title,
+        'description' => $description,
+        'image' => $uploadPath,
+        'isManual' => false,
+        'uploadDate' => date('Y-m-d H:i:s')
+    ];
+
+    // Load existing user projects
+    $userProjectsFile = $dataDir . 'user_projects.json';
+    $userProjects = [];
+    
+    if (file_exists($userProjectsFile)) {
+        $existingData = file_get_contents($userProjectsFile);
+        $userProjects = json_decode($existingData, true) ?: [];
+    }
+
+    // Add new project
+    $userProjects[] = $project;
+
+    // Save back to file
+    file_put_contents($userProjectsFile, json_encode($userProjects, JSON_PRETTY_PRINT));
+
+    // Return success response
+    $response['success'] = true;
+    $response['message'] = 'Image uploaded successfully!';
+    $response['project'] = $project;
+
+} catch (Exception $e) {
+    $response['message'] = $e->getMessage();
 }
 
 echo json_encode($response);
