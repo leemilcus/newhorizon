@@ -34,14 +34,7 @@ try {
     ];
 
     // Save to file
-    $statsFile = 'gallery_data/statistics.json';
-    
-    // Create directory if it doesn't exist
-    $dataDir = 'gallery_data/';
-    if (!file_exists($dataDir)) {
-        mkdir($dataDir, 0777, true);
-    }
-
+    $statsFile = 'statistics.json';
     file_put_contents($statsFile, json_encode($statistics, JSON_PRETTY_PRINT));
 
     $response['success'] = true;
