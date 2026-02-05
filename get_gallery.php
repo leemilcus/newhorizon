@@ -10,54 +10,60 @@ $response = [
 ];
 
 try {
-    // Manual projects (hardcoded for demonstration)
+    // Manual projects (from your img folder)
     $manualProjects = [
         [
             'id' => 'manual-1',
             'title' => 'Tree Removal Project',
             'description' => 'Professional tree removal service',
             'image' => './img/5.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '5.jpeg'
         ],
         [
             'id' => 'manual-2',
             'title' => 'Stump Grinding Work',
             'description' => 'Complete stump removal service',
             'image' => './img/6.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '6.jpeg'
         ],
         [
             'id' => 'manual-3',
             'title' => 'Tree Trimming Service',
             'description' => 'Expert tree trimming and pruning',
             'image' => './img/7.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '7.jpeg'
         ],
         [
             'id' => 'manual-4',
             'title' => 'Site Clearing Project',
             'description' => 'Large-scale site clearing',
             'image' => './img/8.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '8.jpeg'
         ],
         [
             'id' => 'manual-5',
             'title' => 'Garden Cleanup',
             'description' => 'Complete garden maintenance',
             'image' => './img/9.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '9.jpeg'
         ],
         [
             'id' => 'manual-6',
             'title' => 'Palm Tree Maintenance',
             'description' => 'Specialized palm tree care',
             'image' => './img/10.jpeg',
-            'isManual' => true
+            'isManual' => true,
+            'filename' => '10.jpeg'
         ]
     ];
 
     // User projects (from JSON file)
-    $userProjectsFile = 'gallery_data/user_projects.json';
+    $userProjectsFile = 'user_projects.json';
     $userProjects = [];
     
     if (file_exists($userProjectsFile)) {
