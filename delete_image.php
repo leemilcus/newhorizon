@@ -24,6 +24,7 @@ try {
     $projectId = $input['id'] ?? '';
     $imageUrl = $input['imageUrl'] ?? '';
     $isManual = $input['isManual'] ?? false;
+    $filename = $input['filename'] ?? '';
 
     if (empty($projectId)) {
         throw new Exception('Project ID is required');
@@ -31,7 +32,7 @@ try {
 
     if (!$isManual) {
         // Delete user project
-        $userProjectsFile = 'gallery_data/user_projects.json';
+        $userProjectsFile = 'user_projects.json';
         
         if (!file_exists($userProjectsFile)) {
             throw new Exception('User projects file not found');
@@ -40,7 +41,16 @@ try {
         $userProjectsData = file_get_contents($userProjectsFile);
         $userProjects = json_decode($userProjectsData, true) ?: [];
 
-        // Find and remove the project
+        // Find the project to get filename
+        $projectToDelete = null;
+        foreach ($userProjects as $project) {
+            if ($project['id'] === $projectId) {
+                $projectToDelete = $project;
+                break;
+            }
+        }
+
+        // Remove the project from array
         $filteredProjects = array_filter($userProjects, function($project) use ($projectId) {
             return $project['id'] !== $projectId;
         });
@@ -48,20 +58,35 @@ try {
         // Re-index array
         $filteredProjects = array_values($filteredProjects);
 
-        // Delete the image file
-        if (!empty($imageUrl) && file_exists($imageUrl) && strpos($imageUrl, 'uploads/') !== false) {
-            unlink($imageUrl);
+        // Delete the image file from img folder
+        if ($projectToDelete && isset($projectToDelete['filename'])) {
+            $imagePath = 'img/' . $projectToDelete['filename'];
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
+        // Also try to delete using the imageUrl
+        if (!empty($imageUrl)) {
+            // Extract filename from URL
+            $pathParts = explode('/', $imageUrl);
+            $imgFilename = end($pathParts);
+            $imgPath = 'img/' . $imgFilename;
+            
+            if (file_exists($imgPath)) {
+                unlink($imgPath);
+            }
         }
 
         // Save updated projects
         file_put_contents($userProjectsFile, json_encode($filteredProjects, JSON_PRETTY_PRINT));
 
         $response['success'] = true;
-        $response['message'] = 'Project deleted successfully';
+        $response['message'] = 'Project and image file deleted successfully';
 
     } else {
-        // For manual projects, we just remove from session/local storage
-        // (Server-side manual projects are hardcoded)
+        // For manual projects, we can't delete the original img folder files
+        // but we can remove from the JSON data
         $response['success'] = true;
         $response['message'] = 'Manual project reference removed';
     }
